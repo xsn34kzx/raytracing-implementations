@@ -35,6 +35,8 @@ int main(int argc, char* argv[])
 
         outFile.close();
     }
+    else
+        std::cout << "usage: raytrace [width] [height] [desired filename...]" << std::endl; 
 
     return 0;
 }
