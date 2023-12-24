@@ -2,6 +2,8 @@
 #include <fstream>
 #include <string>
 
+#include "vec3.hpp"
+
 int main(int argc, char* argv[])
 {
     if(argc == 4)
@@ -9,7 +11,7 @@ int main(int argc, char* argv[])
         int width = std::stoi(std::string(argv[1]));
         int height = std::stoi(std::string(argv[2]));
         std::string fullPath = std::string("./") + std::string(argv[3]) + std::string(".ppm");
-        
+
         std::ofstream outFile(fullPath.c_str());
 
         if(outFile)
@@ -20,16 +22,13 @@ int main(int argc, char* argv[])
             {
                 for(unsigned col = 0; col < width; col++)
                 {
-                   unsigned red = unsigned((float(col) / (width - 1)) * 255.0);
-                   unsigned blue = unsigned((float(row) / (height - 1)) * 255.0);
-                   unsigned green = 0;
+                    vec3<unsigned> pixel(
+                            unsigned((float(col) / (width - 1)) * 255.0), 
+                            0, 
+                            unsigned((float(row) / (height - 1)) * 255.0));
 
-                   outFile << red << " " << green << " " << " " << blue;
-                   if(col != width - 1)
-                    outFile << "\t";
+                    outFile << pixel << "\n"; 
                 }
-
-                outFile << "\n";
             }
         }
 
