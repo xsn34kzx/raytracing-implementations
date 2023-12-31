@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <vector>
 
 #include "vec3.hpp"
 
@@ -10,7 +11,7 @@ int main(int argc, char* argv[])
     {
         int width = std::stoi(std::string(argv[1]));
         int height = std::stoi(std::string(argv[2]));
-        std::string fullPath = std::string("./") + std::string(argv[3]) + std::string(".ppm");
+        std::string fullPath = std::string("./img/") + std::string(argv[3]) + std::string(".ppm");
 
         std::ofstream outFile(fullPath.c_str());
 
@@ -18,14 +19,18 @@ int main(int argc, char* argv[])
         {
             outFile << "P3\n" << width << " " << height << "\n255\n";
 
-            for(unsigned row = 0; row < height; row++)
+            float effHeight = float(height - 1);
+            float effWidth = float(width - 1);
+
+            for(float row = 0.0; row <= effHeight; row++)
             {
-                for(unsigned col = 0; col < width; col++)
+                float v = row / effWidth;
+
+                for(float col = 0.0; col <= effWidth; col++)
                 {
-                    vec3<unsigned> pixel(
-                            unsigned((float(col) / (width - 1)) * 255.0), 
-                            0, 
-                            unsigned((float(row) / (height - 1)) * 255.0));
+                    float u = col / effWidth;
+
+                    vec3<unsigned> pixel(unsigned(u * 255.0), unsigned(v * 255.0), 0);
 
                     outFile << pixel << "\n"; 
                 }

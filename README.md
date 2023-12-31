@@ -8,6 +8,20 @@ several different implementations written in other languages as a grounds for
 learning or improving knowledge on a given language in addition to performance
 and syntax comparisons.
 
+# Usage
+The C++ portion of the project uses CMake (Version 3.22 >= required), so its
+Makefile can be generated normally. After doing so, it can be compiled with
+``make``. 
+
+After doing so, the program can be used to render a PPM file when provided the
+desired width, height, and file name:
+```
+raytrace [width] [height] [desired filename...]
+```
+
+Note that ``make clean-img`` exists to clear all PPM files from the ``img``
+folder generated post-build.
+
 # Current Goal(s)
 - Finish C++ rewrite with new features, improved syntax, and writing conventions
     - [ ] Add multithreading
