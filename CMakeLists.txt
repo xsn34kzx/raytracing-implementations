@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.22)
-project(raytrace
+project(raytrace-cpp
     LANGUAGES CXX)
 
 set(SRC_DIR ${CMAKE_SOURCE_DIR}/src)
@@ -10,6 +10,8 @@ add_executable(${PROJECT_NAME} ${SRC_DIR}/main.cpp)
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 11)
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_EXTENSIONS False)
+
+target_link_libraries(${PROJECT_NAME} PUBLIC raytrace-cpp-lib)
 
 add_custom_command(TARGET ${PROJECT_NAME}
     COMMAND ${CMAKE_COMMAND} -E make_directory "img"
