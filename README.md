@@ -8,12 +8,15 @@ several different implementations written in other languages as a grounds for
 learning or improving knowledge on a given language in addition to performance
 and syntax comparisons.
 
+The project operates under the GNU Affero General Public License. Full details
+within ``LICENSE``.
+
 # Usage
 The C++ portion of the project uses CMake (Version 3.22 >= required), so its
 Makefile can be generated normally. After doing so, it can be compiled with
 ``make``. 
 
-After doing so, the program can be used to render a PPM file when provided the
+The program can be used to render a PPM file when provided the
 desired width, height, and file name:
 ```
 raytrace [width] [height] [desired filename...]
