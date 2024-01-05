@@ -24,8 +24,25 @@
 #include <raytrace-cpp-lib/vec3.hpp>
 #include <raytrace-cpp-lib/ray.hpp>
 
+bool hit_sphere(const vec3<float>& center, float radius, const ray& r)
+{
+    vec3<float> rayOrigMinusCenter = r.get_origin() - center;
+    vec3<float> rayDir = r.get_direction();
+
+    float a = rayDir.dot(rayDir);
+    float b = 2 * rayDir.dot(rayOrigMinusCenter);
+    float c = rayOrigMinusCenter.dot(rayOrigMinusCenter) - radius * radius;
+
+    float discriminant = b * b - 4 * a * c;
+
+    return (b * b - 4 * a * c) > 0;
+}
+
 vec3<float> color(const ray& r)
 {
+    if(hit_sphere(vec3<float>(0.0, 0.0, -1.0), 0.5, r))
+        return vec3<float>(1.0, 0.0, 0.0);
+
     ray colorPercents(vec3<float>(1.0, 1.0, 1.0), vec3<float>(0.5, 0.7, 1.0));
     float t = 0.5 * (r.get_direction().unit_vector().y() + 1.0);
     

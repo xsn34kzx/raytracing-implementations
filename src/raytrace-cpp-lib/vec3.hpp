@@ -86,10 +86,21 @@ class vec3
             return *this / magnitude; 
         }
 
+        T dot(const vec3<T>& rhs) const
+        {
+            return vec[0] * rhs.vec[0] + vec[1] * rhs.vec[1] + vec[2] * rhs.vec[2];
+        }
+
         vec3<T> operator+(const vec3<T>& rhs) const
         {
             return vec3<T>(vec[0] + rhs.vec[0], vec[1] + rhs.vec[1], 
                     vec[2] + rhs.vec[2]);
+        }
+
+        vec3<T> operator-(const vec3<T>& rhs) const
+        {
+            return vec3<T>(vec[0] - rhs.vec[0], vec[1] - rhs.vec[1], 
+                    vec[2] - rhs.vec[2]);
         }
 
         vec3<T> operator*(T c) const
