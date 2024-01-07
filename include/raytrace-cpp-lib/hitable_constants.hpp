@@ -16,35 +16,13 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <raytrace-cpp-lib/vec3.hpp>
-#include <raytrace-cpp-lib/ray.hpp>
+#ifndef HITABLE_CONSTANTS_HPP
+#define HITABLE_CONSTANTS_HPP
 
-ray::ray() {}
-
-ray::ray(const vec3<float>& origin, const vec3<float>& direction)
-    : origin(origin), direction(direction) {}
-
-vec3<float> ray::get_origin() const
+namespace hitable_constants
 {
-    return origin;
+    const float T_MAX = 10.0;
+    const float T_MIN = 0.0;
 }
 
-vec3<float> ray::get_direction() const
-{
-    return direction;
-}
-
-void ray::set_direction(const vec3<float>& direction)
-{
-    this->direction = direction;
-}
-
-vec3<float> ray::point_at(float t) const
-{
-    return origin + direction * t;
-}
-
-vec3<float> ray::lerp(float t) const
-{
-    return origin * (1.0 - t) + direction * t;
-}
+#endif

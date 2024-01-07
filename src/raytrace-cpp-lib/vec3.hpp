@@ -31,6 +31,11 @@ class vec3
             vec[0] = vec[1] = vec[2] = static_cast<T>(0);
         }
 
+        explicit vec3(T a)
+        {
+            vec[0] = vec[1] = vec[2] = a;
+        }
+
         vec3(T a, T b, T c)
         {
             vec[0] = a;
@@ -89,6 +94,13 @@ class vec3
         T dot(const vec3<T>& rhs) const
         {
             return vec[0] * rhs.vec[0] + vec[1] * rhs.vec[1] + vec[2] * rhs.vec[2];
+        }
+
+        T weighted_dot(const vec3<T>& rhs, const vec3<T>& weights)
+        {
+            return weights.vec[0] * vec[0] * rhs.vec[0]
+                + weights.vec[1] * vec[1] * rhs.vec[1]
+                + weights.vec[2] * vec[2] * rhs.vec[2];
         }
 
         vec3<T> operator+(const vec3<T>& rhs) const

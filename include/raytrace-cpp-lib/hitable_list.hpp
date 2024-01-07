@@ -16,35 +16,28 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <raytrace-cpp-lib/vec3.hpp>
+#ifndef HITABLE_LIST_HPP
+#define HITABLE_LIST_HPP
+
+#include <vector>
+
 #include <raytrace-cpp-lib/ray.hpp>
+#include <raytrace-cpp-lib/hit_record.hpp>
+#include <raytrace-cpp-lib/hitable.hpp>
 
-ray::ray() {}
-
-ray::ray(const vec3<float>& origin, const vec3<float>& direction)
-    : origin(origin), direction(direction) {}
-
-vec3<float> ray::get_origin() const
+class hitable_list : public hitable
 {
-    return origin;
-}
+    public:
+        hitable_list();
+        ~hitable_list();
 
-vec3<float> ray::get_direction() const
-{
-    return direction;
-}
+        void add(hitable* shape);
 
-void ray::set_direction(const vec3<float>& direction)
-{
-    this->direction = direction;
-}
+        bool hit(const ray& r, float t_min, float t_max, hit_record& rec) const override;
 
-vec3<float> ray::point_at(float t) const
-{
-    return origin + direction * t;
-}
+    private:
+        std::vector<hitable*> list;
+        size_t size;
+};
 
-vec3<float> ray::lerp(float t) const
-{
-    return origin * (1.0 - t) + direction * t;
-}
+#endif

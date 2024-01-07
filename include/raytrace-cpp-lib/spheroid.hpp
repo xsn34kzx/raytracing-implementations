@@ -16,35 +16,26 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#ifndef SPHEROID_HPP
+#define SPHEROID_HPP
+
 #include <raytrace-cpp-lib/vec3.hpp>
 #include <raytrace-cpp-lib/ray.hpp>
+#include <raytrace-cpp-lib/hit_record.hpp>
+#include <raytrace-cpp-lib/sphere.hpp>
 
-ray::ray() {}
-
-ray::ray(const vec3<float>& origin, const vec3<float>& direction)
-    : origin(origin), direction(direction) {}
-
-vec3<float> ray::get_origin() const
+class spheroid : public sphere
 {
-    return origin;
-}
+    public:
+        spheroid(const vec3<float>& coefficients);
+        spheroid(const vec3<float>& coefficients, float radius);
+        spheroid(const vec3<float>& coefficients, const vec3<float>& center);
+        spheroid(const vec3<float>& coefficients, const vec3<float>& center, float radius);
 
-vec3<float> ray::get_direction() const
-{
-    return direction;
-}
+        bool hit(const ray& r, float t_min, float t_max, hit_record& rec) const override;
 
-void ray::set_direction(const vec3<float>& direction)
-{
-    this->direction = direction;
-}
+    private:
+        vec3<float> coefficients;
+};
 
-vec3<float> ray::point_at(float t) const
-{
-    return origin + direction * t;
-}
-
-vec3<float> ray::lerp(float t) const
-{
-    return origin * (1.0 - t) + direction * t;
-}
+#endif

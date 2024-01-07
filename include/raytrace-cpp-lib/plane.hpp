@@ -16,35 +16,28 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#ifndef PLANE_HPP
+#define PLANE_HPP
+
 #include <raytrace-cpp-lib/vec3.hpp>
 #include <raytrace-cpp-lib/ray.hpp>
+#include <raytrace-cpp-lib/hit_record.hpp>
+#include <raytrace-cpp-lib/hitable.hpp>
 
-ray::ray() {}
-
-ray::ray(const vec3<float>& origin, const vec3<float>& direction)
-    : origin(origin), direction(direction) {}
-
-vec3<float> ray::get_origin() const
+class plane : public hitable
 {
-    return origin;
-}
+    public:
+        plane();
+        explicit plane(float constant);
+        plane(const vec3<float>& coefficients, float constant);
+        plane(const vec3<float>& center, const vec3<float>& coefficients, float constant);
 
-vec3<float> ray::get_direction() const
-{
-    return direction;
-}
+        bool hit(const ray& r, float t_min, float t_max, hit_record& rec) const override;
 
-void ray::set_direction(const vec3<float>& direction)
-{
-    this->direction = direction;
-}
+    private:
+        vec3<float> center;
+        vec3<float> coefficients;
+        float constant;
+};
 
-vec3<float> ray::point_at(float t) const
-{
-    return origin + direction * t;
-}
-
-vec3<float> ray::lerp(float t) const
-{
-    return origin * (1.0 - t) + direction * t;
-}
+#endif

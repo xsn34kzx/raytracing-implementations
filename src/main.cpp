@@ -23,30 +23,29 @@
 
 #include <raytrace-cpp-lib/vec3.hpp>
 #include <raytrace-cpp-lib/ray.hpp>
+#include <raytrace-cpp-lib/hit_record.hpp>
+#include <raytrace-cpp-lib/hitable.hpp>
+#include <raytrace-cpp-lib/hitable_list.hpp>
+#include <raytrace-cpp-lib/hitable_constants.hpp>
+#include <raytrace-cpp-lib/plane.hpp>
+#include <raytrace-cpp-lib/sphere.hpp>
+#include <raytrace-cpp-lib/spheroid.hpp>
 
-bool hit_sphere(const vec3<float>& center, float radius, const ray& r)
+vec3<float> color(const ray& r, const hitable& world)
 {
-    vec3<float> rayOrigMinusCenter = r.get_origin() - center;
-    vec3<float> rayDir = r.get_direction();
+    hit_record finalRec;
+    if(world.hit(r, hitable_constants::T_MIN, hitable_constants::T_MAX, finalRec))
+    {
+        return vec3<float>(finalRec.normal.x() + 1.0,
+                finalRec.normal.y() + 1.0, finalRec.normal.z() + 1.0) * 0.5;
+    }
+    else
+    {
+        ray colorPercents(vec3<float>(1.0, 1.0, 1.0), vec3<float>(0.5, 0.7, 1.0));
+        float t = 0.5 * (r.get_direction().unit_vector().y() + 1.0);
 
-    float a = rayDir.dot(rayDir);
-    float b = 2 * rayDir.dot(rayOrigMinusCenter);
-    float c = rayOrigMinusCenter.dot(rayOrigMinusCenter) - radius * radius;
-
-    float discriminant = b * b - 4 * a * c;
-
-    return (b * b - 4 * a * c) > 0;
-}
-
-vec3<float> color(const ray& r)
-{
-    if(hit_sphere(vec3<float>(0.0, 0.0, -1.0), 0.5, r))
-        return vec3<float>(1.0, 0.0, 0.0);
-
-    ray colorPercents(vec3<float>(1.0, 1.0, 1.0), vec3<float>(0.5, 0.7, 1.0));
-    float t = 0.5 * (r.get_direction().unit_vector().y() + 1.0);
-    
-    return colorPercents.lerp(t);
+        return colorPercents.lerp(t);
+    }
 }
 
 int main(int argc, char* argv[])
@@ -69,6 +68,11 @@ int main(int argc, char* argv[])
             vec3<float> deltaX(2.0, 0.0, 0.0);
             vec3<float> deltaY(0.0, -2.0, 0.0);
 
+            hitable_list world;
+            world.add(new spheroid(vec3<float>(4.0, 1.0, 1.0), vec3<float>(0.0, 0.0, -1.0), 0.5));
+            world.add(new sphere(vec3<float>(-0.75, 0.0, -1.5), 0.25));
+            world.add(new plane(vec3<float>(0.0, -1.0, -0.25), -1.0));
+
             float effHeight = static_cast<float>(height - 1);
             float effWidth = static_cast<float>(width - 1);
 
@@ -82,7 +86,7 @@ int main(int argc, char* argv[])
 
                     originToDir.set_direction(upLeftPlane + deltaX * u + deltaY * v);
 
-                    vec3<float> pixelPercents = color(originToDir);
+                    vec3<float> pixelPercents = color(originToDir, world);
                     vec3<unsigned> pixel(
                             static_cast<unsigned>(pixelPercents.r() * 255.0), 
                             static_cast<unsigned>(pixelPercents.g() * 255.0),

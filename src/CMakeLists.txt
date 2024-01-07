@@ -21,9 +21,15 @@ set(INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include/${LIB_NAME})
 set(SRC_DIR ${PROJECT_SOURCE_DIR}/src/${LIB_NAME})
 
 add_library(${LIB_NAME} STATIC
-    ${SRC_DIR}/ray.cpp ${INCLUDE_DIR}/ray.hpp)
+    ${SRC_DIR}/ray.cpp ${INCLUDE_DIR}/ray.hpp
+    ${SRC_DIR}/plane.cpp ${INCLUDE_DIR}/plane.hpp
+    ${SRC_DIR}/sphere.cpp ${INCLUDE_DIR}/sphere.hpp
+    ${SRC_DIR}/spheroid.cpp ${INCLUDE_DIR}/spheroid.hpp
+    ${SRC_DIR}/hitable_list.cpp ${INCLUDE_DIR}/hitable_list.hpp)
 
 target_include_directories(${LIB_NAME} PUBLIC
     ${INCLUDE_DIR}/.. 
     ${SRC_DIR}/..)
 
+set_property(TARGET ${LIB_NAME} PROPERTY CXX_STANDARD 11)
+set_property(TARGET ${LIB_NAME} PROPERTY CXX_EXTENSIONS False)

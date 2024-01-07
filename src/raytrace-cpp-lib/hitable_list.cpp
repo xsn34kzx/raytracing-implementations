@@ -16,35 +16,44 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <raytrace-cpp-lib/vec3.hpp>
+#include <vector>
+
 #include <raytrace-cpp-lib/ray.hpp>
+#include <raytrace-cpp-lib/hit_record.hpp>
+#include <raytrace-cpp-lib/hitable.hpp>
+#include <raytrace-cpp-lib/hitable_list.hpp>
 
-ray::ray() {}
+hitable_list::hitable_list() 
+    : size(0) {}
 
-ray::ray(const vec3<float>& origin, const vec3<float>& direction)
-    : origin(origin), direction(direction) {}
-
-vec3<float> ray::get_origin() const
+hitable_list::~hitable_list()
 {
-    return origin;
+    for(hitable* shape : list)
+    {
+        delete shape;
+    }
 }
 
-vec3<float> ray::get_direction() const
+void hitable_list::add(hitable* shape)
 {
-    return direction;
+    list.push_back(shape);
 }
 
-void ray::set_direction(const vec3<float>& direction)
+bool hitable_list::hit(const ray& r, float t_min, float t_max, hit_record& rec) const
 {
-    this->direction = direction;
-}
+    hit_record curRec;
+    bool hitSomething = false;
+    float closestSoFar = t_max;
 
-vec3<float> ray::point_at(float t) const
-{
-    return origin + direction * t;
-}
+    for(hitable* shape : list)
+    {
+        if(shape->hit(r, t_min, closestSoFar, curRec))
+        {
+            hitSomething = true;
+            closestSoFar = curRec.t;
+        }
+    }
 
-vec3<float> ray::lerp(float t) const
-{
-    return origin * (1.0 - t) + direction * t;
+    rec = curRec;
+    return hitSomething;
 }

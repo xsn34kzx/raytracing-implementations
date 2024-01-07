@@ -16,35 +16,16 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#ifndef HIT_RECORD_HPP
+#define HIT_RECORD_HPP
+
 #include <raytrace-cpp-lib/vec3.hpp>
-#include <raytrace-cpp-lib/ray.hpp>
 
-ray::ray() {}
-
-ray::ray(const vec3<float>& origin, const vec3<float>& direction)
-    : origin(origin), direction(direction) {}
-
-vec3<float> ray::get_origin() const
+struct hit_record
 {
-    return origin;
-}
+    float t;
+    vec3<float> point;
+    vec3<float> normal;
+};
 
-vec3<float> ray::get_direction() const
-{
-    return direction;
-}
-
-void ray::set_direction(const vec3<float>& direction)
-{
-    this->direction = direction;
-}
-
-vec3<float> ray::point_at(float t) const
-{
-    return origin + direction * t;
-}
-
-vec3<float> ray::lerp(float t) const
-{
-    return origin * (1.0 - t) + direction * t;
-}
+#endif
