@@ -124,6 +124,15 @@ class vec3
         {
             return vec3<T>(vec[0] / c, vec[1] / c, vec[2] / c);
         }
+
+        vec3<T> operator+=(vec3<T> v)
+        {
+            this->vec[0] += v.vec[0];
+            this->vec[1] += v.vec[1];
+            this->vec[2] += v.vec[2];
+
+            return *this;
+        }
         
         friend std::ostream& operator<<(std::ostream& lhs, const vec3& rhs)
         {

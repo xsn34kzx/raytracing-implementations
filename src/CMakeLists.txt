@@ -25,7 +25,8 @@ add_library(${LIB_NAME} STATIC
     ${SRC_DIR}/plane.cpp ${INCLUDE_DIR}/plane.hpp
     ${SRC_DIR}/sphere.cpp ${INCLUDE_DIR}/sphere.hpp
     ${SRC_DIR}/spheroid.cpp ${INCLUDE_DIR}/spheroid.hpp
-    ${SRC_DIR}/hitable_list.cpp ${INCLUDE_DIR}/hitable_list.hpp)
+    ${SRC_DIR}/hitable_list.cpp ${INCLUDE_DIR}/hitable_list.hpp
+    ${SRC_DIR}/camera.cpp ${INCLUDE_DIR}/camera.hpp)
 
 target_include_directories(${LIB_NAME} PUBLIC
     ${INCLUDE_DIR}/.. 

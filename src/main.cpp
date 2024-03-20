@@ -23,6 +23,7 @@
 
 #include <raytrace-cpp-lib/vec3.hpp>
 #include <raytrace-cpp-lib/ray.hpp>
+#include <raytrace-cpp-lib/camera.hpp>
 #include <raytrace-cpp-lib/hit_record.hpp>
 #include <raytrace-cpp-lib/hitable.hpp>
 #include <raytrace-cpp-lib/hitable_list.hpp>
@@ -62,35 +63,41 @@ int main(int argc, char* argv[])
         {
             outFile << "P3\n" << width << " " << height << "\n255\n";
 
-            ray originToDir;
-
-            vec3<float> upLeftPlane(-1.0, 1.0, -1.0);
-            vec3<float> deltaX(2.0, 0.0, 0.0);
-            vec3<float> deltaY(0.0, -2.0, 0.0);
-
             hitable_list world;
             world.add(new spheroid(vec3<float>(4.0, 1.0, 1.0), vec3<float>(0.0, 0.0, -1.0), 0.5));
             world.add(new sphere(vec3<float>(-0.75, 0.0, -1.5), 0.25));
             world.add(new plane(vec3<float>(0.0, -1.0, -0.25), -1.0));
 
+            camera cam;
+
             float effHeight = static_cast<float>(height - 1);
             float effWidth = static_cast<float>(width - 1);
 
+            float pixelHeight = 1.0 / effHeight;
+            float pixelWidth = 1.0 / effWidth;
+
             for(float row = 0.0; row <= effHeight; row++)
             {
-                float v = row / effWidth;
-
                 for(float col = 0.0; col <= effWidth; col++)
                 {
-                    float u = col / effWidth;
+                    vec3<float> pixelPercents;
 
-                    originToDir.set_direction(upLeftPlane + deltaX * u + deltaY * v);
+                    for(float subPixRow = 0.0; subPixRow <= 1.0; subPixRow += 0.5)
+                    {
+                        for(float subPixCol = 0.0; subPixCol <= 1.0; subPixCol += 0.5)
+                        {
+                            float v = (row + subPixRow) / effWidth;
+                            float u = (col + subPixCol) / effWidth;
 
-                    vec3<float> pixelPercents = color(originToDir, world);
+                            ray originToDir = cam.get_ray(u, v);
+                            pixelPercents += color(originToDir, world);
+                        }
+                    }
+
                     vec3<unsigned> pixel(
-                            static_cast<unsigned>(pixelPercents.r() * 255.0), 
-                            static_cast<unsigned>(pixelPercents.g() * 255.0),
-                            static_cast<unsigned>(pixelPercents.b() * 255.0));
+                            static_cast<unsigned>(pixelPercents.r() * 255.0 / 9), 
+                            static_cast<unsigned>(pixelPercents.g() * 255.0 / 9),
+                            static_cast<unsigned>(pixelPercents.b() * 255.0 / 9));
 
                     outFile << pixel << "\n"; 
                 }
