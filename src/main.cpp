@@ -76,28 +76,39 @@ int main(int argc, char* argv[])
             float pixelHeight = 1.0 / effHeight;
             float pixelWidth = 1.0 / effWidth;
 
+            float samples = 5.0;
+            float samplesSqr = samples * samples;
+            
+            float subPixelHeight = pixelHeight / (samples - 1.0);
+            float subPixelWidth = pixelWidth / (samples - 1.0);
+
             for(float row = 0.0; row <= effHeight; row++)
             {
+                float v = row * pixelHeight;
+
                 for(float col = 0.0; col <= effWidth; col++)
                 {
+                    float u = col * pixelWidth;
+
                     vec3<float> pixelPercents;
 
-                    for(float subPixRow = 0.0; subPixRow <= 1.0; subPixRow += 0.5)
+                    for(float subPixRow = 0.0; subPixRow < samples; subPixRow++)
                     {
-                        for(float subPixCol = 0.0; subPixCol <= 1.0; subPixCol += 0.5)
-                        {
-                            float v = (row + subPixRow) / effWidth;
-                            float u = (col + subPixCol) / effWidth;
+                        float subV = v + subPixRow * subPixelHeight;
 
-                            ray originToDir = cam.get_ray(u, v);
+                        for(float subPixCol = 0.0; subPixCol < samples; subPixCol++)
+                        {
+                            float subU = u + subPixCol * subPixelWidth;
+
+                            ray originToDir = cam.get_ray(subU, subV);
                             pixelPercents += color(originToDir, world);
                         }
                     }
 
                     vec3<unsigned> pixel(
-                            static_cast<unsigned>(pixelPercents.r() * 255.0 / 9), 
-                            static_cast<unsigned>(pixelPercents.g() * 255.0 / 9),
-                            static_cast<unsigned>(pixelPercents.b() * 255.0 / 9));
+                            static_cast<unsigned>(pixelPercents.r() * 255.0 / samplesSqr),
+                            static_cast<unsigned>(pixelPercents.g() * 255.0 / samplesSqr),
+                            static_cast<unsigned>(pixelPercents.b() * 255.0 / samplesSqr));
 
                     outFile << pixel << "\n"; 
                 }
