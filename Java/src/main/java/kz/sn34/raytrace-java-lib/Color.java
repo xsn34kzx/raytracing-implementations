@@ -13,8 +13,8 @@ public class Color
     {
         this.rgb = new int[3];
         this.rgb[0] = r;
-        this.rgb[1] = b;
-        this.rgb[2] = g;
+        this.rgb[1] = g;
+        this.rgb[2] = b;
     }
 
     public int getRed()

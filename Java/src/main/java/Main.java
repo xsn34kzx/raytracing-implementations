@@ -20,14 +20,32 @@ public class Main
 
             ppmOutput.printf("P3\n%d %d\n255\n", width, height);
 
-            for(int row = 0; row < height; row++)
+            Ray originToDir = new Ray();
+
+            Vector3 upLeftPlane = new Vector3(-1, 1, -1);
+            Vector3 deltaX = new Vector3(2, 0, 0);
+            Vector3 deltaY = new Vector3(0, -2, 0);
+
+            double effHeight = height - 1;
+            double effWidth = width - 1;
+
+            for(double row = 0; row <= effHeight; row++)
             {
-                for(int col = 0; col < width; col++)
+                double v = row / effHeight;
+
+                for(double col = 0; col <= effWidth; col++)
                 {
+                    double u = col / effWidth;
+
+                    Vector3[] terms = {deltaX.multiply(u), deltaY.multiply(v)};
+                    originToDir.setDirection(upLeftPlane.add(terms));
+
+                    Vector3 pixelPercents = Main.color(originToDir);
+
                     Color pixel = new Color(
-                            (int) (col * 255.0 / (width - 1)),
-                            (int) (row * 255.0 / (height - 1)),
-                            0);
+                        (int) (pixelPercents.getX() * 255),
+                        (int) (pixelPercents.getY() * 255),
+                        (int) (pixelPercents.getZ() * 255));
 
                     ppmOutput.println(pixel);
                 }
@@ -43,5 +61,13 @@ public class Main
         {
             System.out.println("File could not be created!");
         }
+    }
+
+    static private Vector3 color(Ray r)
+    {
+        Ray colorPercents = new Ray(new Vector3(1), new Vector3(0.5, 0.7, 1));
+        double t = 0.5 * (r.getDirection().getUnitVector().getY() + 1);
+
+        return colorPercents.lerp(t);
     }
 }
