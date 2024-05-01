@@ -1,5 +1,4 @@
-package kz.sn34.raytrace_java;
-
+import kz.sn34.raytrace_java_lib.*;
 import java.io.*;
 
 public class Main
@@ -25,11 +24,12 @@ public class Main
             {
                 for(int col = 0; col < width; col++)
                 {
-                    int red = (int) (col * 255.0 / (width - 1));
-                    int blue = (int) (row * 255.0 / (height - 1));
-                    int green = 0;
+                    Color pixel = new Color(
+                            (int) (col * 255.0 / (width - 1)),
+                            (int) (row * 255.0 / (height - 1)),
+                            0);
 
-                    ppmOutput.printf("%d %d %d\n", red, blue, green);
+                    ppmOutput.println(pixel);
                 }
             }
 
