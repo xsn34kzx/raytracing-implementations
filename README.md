@@ -25,6 +25,10 @@ raytrace [width] [height] [desired filename...]
 Note that ``make clean-img`` exists to clear all PPM files from the ``img``
 folder generated post-build.
 
+The Java portion of the project uses Gradle (Version 8.7 >= required) under the
+``application`` plugin. As such, all ``application`` commands can be used, such
+as ``gradle run`` and ``gradle build``.
+
 # Current Goal(s)
 - Finish C++ rewrite with new features, improved syntax, and writing conventions
     - [ ] Add multithreading
