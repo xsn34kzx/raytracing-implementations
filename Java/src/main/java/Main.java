@@ -65,9 +65,27 @@ public class Main
 
     static private Vector3 color(Ray r)
     {
+        if(Main.hitSphere(new Vector3(0, 0, -1), 0.5, r))
+            return new Vector3(1, 0, 0);
+
         Ray colorPercents = new Ray(new Vector3(1), new Vector3(0.5, 0.7, 1));
         double t = 0.5 * (r.getDirection().getUnitVector().getY() + 1);
 
         return colorPercents.lerp(t);
+    }
+
+    static private boolean hitSphere(Vector3 center, double radius, Ray r)
+    {
+        Vector3 rayOriginMinusCenter = r.getOrigin().subtract(center);
+        Vector3 rayDirection = r.getDirection();
+
+        double a = rayDirection.dot(rayDirection);
+        double b = 2 * rayDirection.dot(rayOriginMinusCenter);
+        double c = rayOriginMinusCenter.dot(rayOriginMinusCenter)
+            - radius * radius;
+
+        double discriminant = b * b - 4 * a * c;
+
+        return (b * b - 4 * a * c) > 0;
     }
 }

@@ -57,6 +57,20 @@ public class Vector3
         return new Vector3(x, y, z);
     }
 
+    public Vector3 subtract(Vector3 v)
+    {
+        return new Vector3(
+                this.vec[0] - v.vec[0],
+                this.vec[1] - v.vec[1],
+                this.vec[2] - v.vec[2]);
+    }
+
+    public double dot(Vector3 v)
+    {
+        return this.vec[0] * v.vec[0] + this.vec[1] * v.vec[1]
+            + this.vec[2] * v.vec[2];
+    }
+
     public double getX()
     {
         return this.vec[0];

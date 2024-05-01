@@ -19,12 +19,12 @@ public class Ray
 
     public Vector3 getOrigin()
     {
-        return origin;
+        return this.origin;
     }
 
     public Vector3 getDirection()
     {
-        return direction;
+        return this.direction;
     }
 
     public void setDirection(Vector3 direction)
