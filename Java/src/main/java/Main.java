@@ -5,62 +5,73 @@ public class Main
 {
     public static void main(String[] args)
     {
-        int width = 200;
-        int height = 100;
+        if(args.length == 3)
+        {
+            try {
+                int width = Integer.parseInt(args[0]);
+                int height = Integer.parseInt(args[1]);
+                String fullPath = "./img/" + args[2] + ".ppm"; 
 
-        File outputFolder = new File("./img");
-        if(!outputFolder.exists())
-            outputFolder.mkdir();
+                File outputFolder = new File("./img");
+                if(!outputFolder.exists())
+                    outputFolder.mkdir();
 
-        File ppmFile = new File("./img/helloWorld.ppm");
-        try {
-            ppmFile.createNewFile();
-            PrintWriter ppmOutput = new PrintWriter(
-                    new FileOutputStream(ppmFile));
+                File ppmFile = new File(fullPath);
+                ppmFile.createNewFile();
+                PrintWriter ppmOutput = new PrintWriter(
+                        new FileOutputStream(ppmFile));
 
-            ppmOutput.printf("P3\n%d %d\n255\n", width, height);
+                ppmOutput.printf("P3\n%d %d\n255\n", width, height);
 
-            Ray originToDir = new Ray();
+                Ray originToDir = new Ray();
 
-            Vector3 upLeftPlane = new Vector3(-1, 1, -1);
-            Vector3 deltaX = new Vector3(2, 0, 0);
-            Vector3 deltaY = new Vector3(0, -2, 0);
+                Vector3 upLeftPlane = new Vector3(-1, 1, -1);
+                Vector3 deltaX = new Vector3(2, 0, 0);
+                Vector3 deltaY = new Vector3(0, -2, 0);
 
-            double effHeight = height - 1;
-            double effWidth = width - 1;
+                double effHeight = height - 1;
+                double effWidth = width - 1;
 
-            for(double row = 0; row <= effHeight; row++)
-            {
-                double v = row / effHeight;
-
-                for(double col = 0; col <= effWidth; col++)
+                for(double row = 0; row <= effHeight; row++)
                 {
-                    double u = col / effWidth;
+                    double v = row / effHeight;
 
-                    Vector3[] terms = {deltaX.multiply(u), deltaY.multiply(v)};
-                    originToDir.setDirection(upLeftPlane.add(terms));
+                    for(double col = 0; col <= effWidth; col++)
+                    {
+                        double u = col / effWidth;
 
-                    Vector3 pixelPercents = Main.color(originToDir);
+                        Vector3[] terms = {deltaX.multiply(u), 
+                            deltaY.multiply(v)};
+                        originToDir.setDirection(upLeftPlane.add(terms));
 
-                    Color pixel = new Color(
-                        (int) (pixelPercents.getX() * 255),
-                        (int) (pixelPercents.getY() * 255),
-                        (int) (pixelPercents.getZ() * 255));
+                        Vector3 pixelPercents = Main.color(originToDir);
 
-                    ppmOutput.println(pixel);
+                        Color pixel = new Color(
+                                (int) (pixelPercents.getX() * 255),
+                                (int) (pixelPercents.getY() * 255),
+                                (int) (pixelPercents.getZ() * 255));
+
+                        ppmOutput.println(pixel);
+                    }
                 }
-            }
 
-            ppmOutput.close();
+                ppmOutput.close();
+            }
+            catch(NumberFormatException e)
+            {
+                System.out.println("Incorrect arguments given!");
+            }
+            catch(FileNotFoundException e)
+            {
+                System.out.println("File could not be found!");
+            }
+            catch(IOException e)
+            {
+                System.out.println("File could not be created!");
+            }
         }
-        catch(FileNotFoundException e)
-        {
-            System.out.println("File could not be found!");
-        }
-        catch(IOException e)
-        {
-            System.out.println("File could not be created!");
-        }
+        else
+            System.out.println("Only three arguments allowed!");
     }
 
     static private Vector3 color(Ray r)
