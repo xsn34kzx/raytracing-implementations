@@ -23,11 +23,7 @@ public class Main
 
                 ppmOutput.printf("P3\n%d %d\n255\n", width, height);
 
-                Ray originToDir = new Ray();
-
-                Vector3 upLeftPlane = new Vector3(-1, 1, -1);
-                Vector3 deltaX = new Vector3(2, 0, 0);
-                Vector3 deltaY = new Vector3(0, -2, 0);
+                Camera cam = new Camera();
 
                 HitableList world = new HitableList();
                 world.add(new Spheroid(new Vector3(4, 1,1), 
@@ -38,6 +34,15 @@ public class Main
                 double effHeight = height - 1;
                 double effWidth = width - 1;
 
+                double pixelHeight = 1 / effHeight; 
+                double pixelWidth = 1 / effWidth;
+
+                double samples = 5;
+                double samplesSqr = samples * samples;
+
+                double subPixelHeight = pixelHeight / (samples - 1);
+                double subPixelWidth = pixelWidth / (samples - 1);
+
                 for(double row = 0; row <= effHeight; row++)
                 {
                     double v = row / effHeight;
@@ -46,16 +51,27 @@ public class Main
                     {
                         double u = col / effWidth;
 
-                        Vector3[] terms = {deltaX.multiply(u), 
-                            deltaY.multiply(v)};
-                        originToDir.setDirection(upLeftPlane.add(terms));
+                        Vector3 pixelPercents = new Vector3();
 
-                        Vector3 pixelPercents = Main.color(originToDir, world);
+                        for(double subRow = 0; subRow < samples; subRow++)
+                        {
+                            double subV = v + subRow * subPixelHeight;
+
+                            for(double subCol = 0; subCol < samples; subCol++)
+                            {
+                                double subU = u + subCol * subPixelWidth;
+
+                                pixelPercents = pixelPercents.add(
+                                        Main.color(cam.getRay(subU, subV),
+                                        world));
+                            }
+                        }
 
                         Color pixel = new Color(
-                                (int) (pixelPercents.getX() * 255),
-                                (int) (pixelPercents.getY() * 255),
-                                (int) (pixelPercents.getZ() * 255));
+                                (int) (pixelPercents.getX() * 255 / samplesSqr),
+                                (int) (pixelPercents.getY() * 255 / samplesSqr),
+                                (int) (pixelPercents.getZ() * 255 / samplesSqr)
+                                );
 
                         ppmOutput.println(pixel);
                     }

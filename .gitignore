@@ -1,2 +1,4 @@
-C++/build/
-Java/build/
+/C++/build/
+/Java/build/
+/Java/img/
+/Java/.gradle/
