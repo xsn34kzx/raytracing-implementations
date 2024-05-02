@@ -71,6 +71,13 @@ public class Vector3
             + this.vec[2] * v.vec[2];
     }
 
+    public double weightedDot(Vector3 v, Vector3 weights)
+    {
+        return weights.vec[0] * this.vec[0] * v.vec[0]
+            + weights.vec[1] * this.vec[1] * v.vec[1]
+            + weights.vec[2] * this.vec[2] * v.vec[2];
+    }
+
     public double getX()
     {
         return this.vec[0];

@@ -29,6 +29,12 @@ public class Main
                 Vector3 deltaX = new Vector3(2, 0, 0);
                 Vector3 deltaY = new Vector3(0, -2, 0);
 
+                HitableList world = new HitableList();
+                world.add(new Spheroid(new Vector3(4, 1,1), 
+                            new Vector3(0, 0, -1), 0.5));
+                world.add(new Sphere(new Vector3(-0.75, 0, -1.5), 0.25));
+                world.add(new Plane(new Vector3(0, -1, -0.25), -1));
+
                 double effHeight = height - 1;
                 double effWidth = width - 1;
 
@@ -44,7 +50,7 @@ public class Main
                             deltaY.multiply(v)};
                         originToDir.setDirection(upLeftPlane.add(terms));
 
-                        Vector3 pixelPercents = Main.color(originToDir);
+                        Vector3 pixelPercents = Main.color(originToDir, world);
 
                         Color pixel = new Color(
                                 (int) (pixelPercents.getX() * 255),
@@ -74,29 +80,23 @@ public class Main
             System.out.println("Only three arguments allowed!");
     }
 
-    static private Vector3 color(Ray r)
+    static private Vector3 color(Ray r, Hitable world)
     {
-        if(Main.hitSphere(new Vector3(0, 0, -1), 0.5, r))
-            return new Vector3(1, 0, 0);
+        HitRecord finalRec = new HitRecord();
 
-        Ray colorPercents = new Ray(new Vector3(1), new Vector3(0.5, 0.7, 1));
-        double t = 0.5 * (r.getDirection().getUnitVector().getY() + 1);
+        if(world.hit(r, Hitable.TMIN, Hitable.TMAX, finalRec))
+        {
+            Vector3 finalNormal = finalRec.getNormal();
+            return new Vector3(finalNormal.getX() + 1, finalNormal.getY() + 1,
+                    finalNormal.getZ() + 1).divide(2);
+        }
+        else
+        {
+            Ray colorPercents = new Ray(new Vector3(1),
+                    new Vector3(0.5, 0.7, 1));
+            double t = 0.5 * (r.getDirection().getUnitVector().getY() + 1);
 
-        return colorPercents.lerp(t);
-    }
-
-    static private boolean hitSphere(Vector3 center, double radius, Ray r)
-    {
-        Vector3 rayOriginMinusCenter = r.getOrigin().subtract(center);
-        Vector3 rayDirection = r.getDirection();
-
-        double a = rayDirection.dot(rayDirection);
-        double b = 2 * rayDirection.dot(rayOriginMinusCenter);
-        double c = rayOriginMinusCenter.dot(rayOriginMinusCenter)
-            - radius * radius;
-
-        double discriminant = b * b - 4 * a * c;
-
-        return (b * b - 4 * a * c) > 0;
+            return colorPercents.lerp(t);
+        }
     }
 }
