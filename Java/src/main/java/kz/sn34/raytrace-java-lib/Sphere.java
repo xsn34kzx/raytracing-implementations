@@ -4,21 +4,18 @@ public class Sphere implements Hitable
 {
     private Vector3 center;
     private double radius;
+    private Material mat;
 
-    public Sphere()
+    public Sphere(double radius, Material mat)
     {
-        this(1);
+        this(new Vector3(), radius, mat);
     }
 
-    public Sphere(double radius)
-    {
-        this(new Vector3(), radius);
-    }
-
-    public Sphere(Vector3 center, double radius)
+    public Sphere(Vector3 center, double radius, Material mat)
     {
         this.radius = radius;
         this.center = center;
+        this.mat = mat;
     }
 
     public Vector3 getCenter()
@@ -37,9 +34,9 @@ public class Sphere implements Hitable
         Vector3 rayOriginMinusCenter = r.getOrigin().subtract(this.center);
         Vector3 rayDirection = r.getDirection();
 
-        double a = rayDirection.dot(rayDirection);
+        double a = rayDirection.getMagnitudeSquared();
         double b = rayDirection.dot(rayOriginMinusCenter);
-        double c = rayOriginMinusCenter.dot(rayOriginMinusCenter)
+        double c = rayOriginMinusCenter.getMagnitudeSquared()
             - radius * radius;
 
         double discriminant = b * b - a * c;
@@ -56,6 +53,7 @@ public class Sphere implements Hitable
                 rec.setT(closestRoot);
                 rec.setPoint(point);
                 rec.setNormal(point.subtract(this.center).divide(this.radius));
+                rec.setMaterial(this.mat);
 
                 return true;
             }
@@ -68,6 +66,7 @@ public class Sphere implements Hitable
                 rec.setT(farthestRoot);
                 rec.setPoint(point);
                 rec.setNormal(point.subtract(this.center).divide(this.radius));
+                rec.setMaterial(this.mat);
 
                 return true;
             }

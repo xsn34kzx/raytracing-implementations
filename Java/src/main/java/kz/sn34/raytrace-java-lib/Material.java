@@ -1,6 +1,10 @@
 package kz.sn34.raytrace_java_lib;
 
-public interface Material
+public abstract class Material
 {
-    boolean scatter(Ray r, HitRecord rec, Vector3 attenuation, Ray scattered);
+    public boolean scatter(Ray r, HitRecord rec, Vector3 attenuation, 
+            Ray scattered)
+    {
+        return false;
+    }
 }

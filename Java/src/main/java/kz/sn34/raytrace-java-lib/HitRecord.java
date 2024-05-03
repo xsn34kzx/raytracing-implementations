@@ -12,8 +12,6 @@ public class HitRecord
         this.t = 0;
         this.point = new Vector3();
         this.normal = new Vector3();
-        // For Chapter 7, all objects will have a Lambertian material
-        this.mat = new Lambertian();
     }
 
     public double getT()
@@ -41,6 +39,7 @@ public class HitRecord
         this.t = rec.t;
         this.point = rec.point;
         this.normal = rec.normal;
+        this.mat = rec.mat;
     }
 
     public void setT(double t)
@@ -56,5 +55,10 @@ public class HitRecord
     public void setNormal(Vector3 normal)
     {
         this.normal = normal;
+    }
+
+    public void setMaterial(Material mat)
+    {
+        this.mat = mat;
     }
 }

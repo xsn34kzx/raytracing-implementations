@@ -146,4 +146,23 @@ public class Vector3
 
         return randomVector.multiply(difference).add(new Vector3(min));
     }
+
+    static public Vector3 getRandomUnitVector()
+    {
+        Vector3 randVector;
+        do {
+            randVector = Vector3.random(-1, 1);
+        } while(randVector.getMagnitudeSquared() >= 1);
+
+        return randVector.getUnitVector();
+    }
+
+    static boolean isNearZero(Vector3 v)
+    {
+        double min = 1e-8;
+
+        return (Math.abs(v.vec[0]) < min)
+            && (Math.abs(v.vec[1]) < min)
+            && (Math.abs(v.vec[2]) < min);
+    }
 }

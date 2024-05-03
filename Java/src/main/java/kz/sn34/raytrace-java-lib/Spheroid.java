@@ -4,27 +4,11 @@ public class Spheroid extends Sphere
 {
     private Vector3 coefficients;
 
-    public Spheroid(Vector3 ceofficients)
-    {
-        super();
-        this.coefficients = coefficients;
-    }
-
-    public Spheroid(Vector3 coefficents, double radius)
-    {
-        super(radius);
-        this.coefficients = coefficients;
-    }
-
-    public Spheroid(Vector3 coefficients, Vector3 center)
-    {
-        super(center, 1);
-        this.coefficients = coefficients;
-    }
-
     public Spheroid(Vector3 coefficients, Vector3 center, double radius)
     {
-        super(center, radius);
+        // Constructors removed and default to Lambertian until issues with
+        // rendering are fixed later
+        super(center, radius, new Lambertian(new Vector3(1)));
         this.coefficients = coefficients;
     }
 

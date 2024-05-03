@@ -26,11 +26,18 @@ public class Main
                 Camera cam = new Camera();
 
                 HitableList world = new HitableList();
-                world.add(new Spheroid(new Vector3(1, 1,1), 
-                            new Vector3(0, 0, -1), 0.5));
+                world.add(new Sphere(new Vector3(0, 0, -1), 0.5,
+                            new Lambertian(new Vector3(0.7, 0.3, 0.3))));
+                //world.add(new Spheroid(new Vector3(1, 1,1), 
+                //            new Vector3(0, 0, -1), 0.5));
                 //world.add(new Sphere(new Vector3(-0.75, 0, -1.5), 0.25));
-                world.add(new Sphere(new Vector3(0, -100.5, -1), 100));
+                world.add(new Sphere(new Vector3(0, -100.5, -1), 100,
+                            new Lambertian(new Vector3(0.8, 0.8, 0))));
                 //world.add(new Plane(new Vector3(0, -1, -0.25), -1));
+                world.add(new Sphere(new Vector3(-1, 0, -1), 0.5,
+                            new Metal(new Vector3(0.8, 0.8, 0.8), 0.3)));
+                world.add(new Sphere(new Vector3(1, 0, -1), 0.5,
+                            new Metal(new Vector3(0.8, 0.6, 0.2), 1)));
 
                 double effHeight = height - 1;
                 double effWidth = width - 1;
@@ -105,15 +112,15 @@ public class Main
         if(depth <= 0)
             return new Vector3();
 
-        HitRecord finalRec = new HitRecord();
+        HitRecord curRec = new HitRecord();
 
-        if(world.hit(r, Hitable.TMIN, Hitable.TMAX, finalRec))
+        if(world.hit(r, Hitable.TMIN, Hitable.TMAX, curRec))
         {
             Ray scattered = new Ray();
             Vector3 attenuation = new Vector3();
-            Material finalMat = finalRec.getMaterial();
+            Material recMat = curRec.getMaterial();
 
-            if(finalMat.scatter(r, finalRec, attenuation, scattered))
+            if(recMat.scatter(r, curRec, attenuation, scattered))
             {
                 return attenuation.multiply(
                         rayColor(scattered, world, depth - 1));
