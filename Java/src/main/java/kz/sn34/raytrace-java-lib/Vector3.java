@@ -94,6 +94,29 @@ public class Vector3
                 Math.pow(this.vec[2], exponent));
     }
 
+    public Vector3 sqrt()
+    {
+        return new Vector3(Math.sqrt(this.vec[0]), Math.sqrt(this.vec[1]),
+                Math.sqrt(this.vec[2]));
+    }
+
+    public Vector3 reflect(Vector3 normal)
+    {
+        return this.subtract(normal.multiply(2 * this.dot(normal)));
+    }
+
+    public Vector3 refract(Vector3 normal, double refractionIndex)
+    {
+        double cosTheta = Math.min(this.multiply(-1).dot(normal), 1);
+
+        Vector3 rayOutPerpendicular = this.add(
+            normal.multiply(cosTheta)).multiply(refractionIndex);
+        Vector3 rayOutParallel = normal.multiply(-Math.sqrt(
+            Math.abs(1 - rayOutPerpendicular.getMagnitudeSquared())));
+
+        return rayOutPerpendicular.add(rayOutParallel);
+    }
+
     public double getX()
     {
         return this.vec[0];

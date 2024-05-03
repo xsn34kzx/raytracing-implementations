@@ -2,6 +2,7 @@ package kz.sn34.raytrace_java_lib;
 
 public class HitRecord
 {
+    private boolean frontFace;
     private double t;
     private Vector3 point;
     private Vector3 normal;
@@ -12,6 +13,11 @@ public class HitRecord
         this.t = 0;
         this.point = new Vector3();
         this.normal = new Vector3();
+    }
+
+    public boolean getFrontFace()
+    {
+        return this.frontFace;
     }
 
     public double getT()
@@ -36,6 +42,7 @@ public class HitRecord
 
     public void copy(HitRecord rec)
     {
+        this.frontFace = rec.frontFace;
         this.t = rec.t;
         this.point = rec.point;
         this.normal = rec.normal;
@@ -60,5 +67,11 @@ public class HitRecord
     public void setMaterial(Material mat)
     {
         this.mat = mat;
+    }
+
+    public void setFaceNormal(Vector3 rayDirection, Vector3 normal)
+    {
+        this.frontFace = (rayDirection.dot(normal) < 0);
+        this.normal = this.frontFace ? normal : normal.multiply(-1);
     }
 }

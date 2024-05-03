@@ -8,7 +8,7 @@ public class Metal extends Material
     public Metal(Vector3 albedo, double fuzz)
     {
         this.albedo = albedo;
-        this.fuzz = fuzz < 1 ? fuzz : 1;
+        this.fuzz = (fuzz < 1) ? fuzz : 1;
     }
 
     @Override
@@ -18,8 +18,7 @@ public class Metal extends Material
         Vector3 direction = r.getDirection();
         Vector3 curNormal = rec.getNormal();
 
-        Vector3 reflected = direction.subtract(
-                curNormal.multiply(2 * direction.dot(curNormal)));
+        Vector3 reflected = direction.reflect(curNormal);
 
         Vector3 randUnitVector = Vector3.getRandomUnitVector();
 

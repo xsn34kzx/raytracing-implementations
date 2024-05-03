@@ -41,37 +41,27 @@ public class Sphere implements Hitable
 
         double discriminant = b * b - a * c;
 
-        if(discriminant > 0)
+        if(discriminant <= 0)
+            return false;
+
+        double sqrtDiscriminant = Math.sqrt(discriminant);
+
+        double root = (-b - sqrtDiscriminant) / a;
+        if(root >= tMax || root <= tMin)
         {
-            double sqrtDiscriminant = Math.sqrt(discriminant);
-
-            double closestRoot = (-b - sqrtDiscriminant) / a;
-            if(closestRoot < tMax && closestRoot > tMin)
-            {
-                Vector3 point = r.pointAt(closestRoot);
-
-                rec.setT(closestRoot);
-                rec.setPoint(point);
-                rec.setNormal(point.subtract(this.center).divide(this.radius));
-                rec.setMaterial(this.mat);
-
-                return true;
-            }
-
-            double farthestRoot = (-b + sqrtDiscriminant) / a;
-            if(farthestRoot < tMax && farthestRoot > tMin)
-            {
-                Vector3 point = r.pointAt(farthestRoot);
-
-                rec.setT(farthestRoot);
-                rec.setPoint(point);
-                rec.setNormal(point.subtract(this.center).divide(this.radius));
-                rec.setMaterial(this.mat);
-
-                return true;
-            }
+            root = (-b + sqrtDiscriminant) / a;
+            if(root >= tMax || root <= tMin)
+                return false;
         }
-        
-        return false;
+
+        Vector3 point = r.pointAt(root);
+        Vector3 normal = point.subtract(this.center).divide(this.radius);
+
+        rec.setT(root);
+        rec.setPoint(point);
+        rec.setMaterial(this.mat);
+        rec.setFaceNormal(rayDirection, normal);
+
+        return true;
     }
 }

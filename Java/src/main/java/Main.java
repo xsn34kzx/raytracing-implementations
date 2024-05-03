@@ -27,15 +27,17 @@ public class Main
 
                 HitableList world = new HitableList();
                 world.add(new Sphere(new Vector3(0, 0, -1), 0.5,
-                            new Lambertian(new Vector3(0.7, 0.3, 0.3))));
+                            new Lambertian(new Vector3(0.1, 0.2, 0.5))));
                 //world.add(new Spheroid(new Vector3(1, 1,1), 
                 //            new Vector3(0, 0, -1), 0.5));
                 //world.add(new Sphere(new Vector3(-0.75, 0, -1.5), 0.25));
                 world.add(new Sphere(new Vector3(0, -100.5, -1), 100,
                             new Lambertian(new Vector3(0.8, 0.8, 0))));
                 //world.add(new Plane(new Vector3(0, -1, -0.25), -1));
+                world.add(new Sphere(new Vector3(-1, 0, -1), 0.4,
+                            new Dielectric(1/1.5)));
                 world.add(new Sphere(new Vector3(-1, 0, -1), 0.5,
-                            new Metal(new Vector3(0.8, 0.8, 0.8), 0.3)));
+                            new Dielectric(1.5)));
                 world.add(new Sphere(new Vector3(1, 0, -1), 0.5,
                             new Metal(new Vector3(0.8, 0.6, 0.2), 1)));
 
@@ -76,7 +78,7 @@ public class Main
                         }
 
                         pixelPercents = pixelPercents.divide(samplesSqr)
-                            .pow(0.5);
+                            .sqrt();
 
                         Color pixel = new Color(
                                 (int) (pixelPercents.getX() * 255),
