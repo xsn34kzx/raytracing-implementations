@@ -26,10 +26,11 @@ public class Main
                 Camera cam = new Camera();
 
                 HitableList world = new HitableList();
-                world.add(new Spheroid(new Vector3(4, 1,1), 
+                world.add(new Spheroid(new Vector3(1, 1,1), 
                             new Vector3(0, 0, -1), 0.5));
-                world.add(new Sphere(new Vector3(-0.75, 0, -1.5), 0.25));
-                world.add(new Plane(new Vector3(0, -1, -0.25), -1));
+                //world.add(new Sphere(new Vector3(-0.75, 0, -1.5), 0.25));
+                world.add(new Sphere(new Vector3(0, -100.5, -1), 100));
+                //world.add(new Plane(new Vector3(0, -1, -0.25), -1));
 
                 double effHeight = height - 1;
                 double effWidth = width - 1;
@@ -62,15 +63,18 @@ public class Main
                                 double subU = u + subCol * subPixelWidth;
 
                                 pixelPercents = pixelPercents.add(
-                                        Main.color(cam.getRay(subU, subV),
-                                        world));
+                                        Main.rayColor(cam.getRay(subU, subV),
+                                        world, 50));
                             }
                         }
 
+                        pixelPercents = pixelPercents.divide(samplesSqr)
+                            .pow(0.5);
+
                         Color pixel = new Color(
-                                (int) (pixelPercents.getX() * 255 / samplesSqr),
-                                (int) (pixelPercents.getY() * 255 / samplesSqr),
-                                (int) (pixelPercents.getZ() * 255 / samplesSqr)
+                                (int) (pixelPercents.getX() * 255),
+                                (int) (pixelPercents.getY() * 255),
+                                (int) (pixelPercents.getZ() * 255)
                                 );
 
                         ppmOutput.println(pixel);
@@ -96,15 +100,26 @@ public class Main
             System.out.println("Only three arguments allowed!");
     }
 
-    static private Vector3 color(Ray r, Hitable world)
+    static private Vector3 rayColor(Ray r, Hitable world, int depth)
     {
+        if(depth <= 0)
+            return new Vector3();
+
         HitRecord finalRec = new HitRecord();
 
         if(world.hit(r, Hitable.TMIN, Hitable.TMAX, finalRec))
         {
-            Vector3 finalNormal = finalRec.getNormal();
-            return new Vector3(finalNormal.getX() + 1, finalNormal.getY() + 1,
-                    finalNormal.getZ() + 1).divide(2);
+            Ray scattered = new Ray();
+            Vector3 attenuation = new Vector3();
+            Material finalMat = finalRec.getMaterial();
+
+            if(finalMat.scatter(r, finalRec, attenuation, scattered))
+            {
+                return attenuation.multiply(
+                        rayColor(scattered, world, depth - 1));
+            }
+
+            return new Vector3();
         }
         else
         {

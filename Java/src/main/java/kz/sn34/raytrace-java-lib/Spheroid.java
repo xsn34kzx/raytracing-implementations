@@ -56,7 +56,7 @@ public class Spheroid extends Sphere
 
                 rec.setT(closestRoot);
                 rec.setPoint(point);
-                rec.setNormal(point.subtract(center).divide(radius));
+                rec.setNormal(point.subtract(center).getUnitVector());
 
                 return true;
             }
@@ -68,7 +68,7 @@ public class Spheroid extends Sphere
 
                 rec.setT(farthestRoot);
                 rec.setPoint(point);
-                rec.setNormal(point.subtract(center).divide(radius));
+                rec.setNormal(point.subtract(center).getUnitVector());
 
                 return true;
             }

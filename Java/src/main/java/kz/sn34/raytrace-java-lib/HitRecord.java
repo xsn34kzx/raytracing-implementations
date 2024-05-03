@@ -5,20 +5,15 @@ public class HitRecord
     private double t;
     private Vector3 point;
     private Vector3 normal;
+    private Material mat;
 
     public HitRecord()
     {
         this.t = 0;
         this.point = new Vector3();
         this.normal = new Vector3();
-    }
-
-    // Need to copy into this record to replace pointer usage in C++ ver
-    public void copy(HitRecord rec)
-    {
-        this.t = rec.t;
-        this.point = rec.point;
-        this.normal = rec.normal;
+        // For Chapter 7, all objects will have a Lambertian material
+        this.mat = new Lambertian();
     }
 
     public double getT()
@@ -34,6 +29,18 @@ public class HitRecord
     public Vector3 getNormal()
     {
         return this.normal;
+    }
+
+    public Material getMaterial()
+    {
+        return this.mat;
+    }
+
+    public void copy(HitRecord rec)
+    {
+        this.t = rec.t;
+        this.point = rec.point;
+        this.normal = rec.normal;
     }
 
     public void setT(double t)

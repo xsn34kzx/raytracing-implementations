@@ -27,6 +27,11 @@ public class Ray
         return this.direction;
     }
 
+    public void setOrigin(Vector3 origin)
+    {
+        this.origin = origin;
+    }
+
     public void setDirection(Vector3 direction)
     {
         this.direction = direction;

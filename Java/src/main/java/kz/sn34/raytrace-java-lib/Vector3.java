@@ -1,5 +1,7 @@
 package kz.sn34.raytrace_java_lib;
 
+import java.util.Random;
+
 public class Vector3
 {
     private double[] vec;
@@ -22,17 +24,7 @@ public class Vector3
         this.vec = new double[3];
         this.vec[0] = this.vec[1] = this.vec[2] = a;
     }
-
-    public Vector3 multiply(double c)
-    {
-        return new Vector3(this.vec[0] * c, this.vec[1] * c, this.vec[2] * c);
-    }
-
-    public Vector3 divide(double c)
-    {
-        return new Vector3(this.vec[0] / c, this.vec[1] / c, this.vec[2] / c);
-    }
-
+    
     public Vector3 add(Vector3 v)
     {
         return new Vector3(
@@ -78,6 +70,30 @@ public class Vector3
             + weights.vec[2] * this.vec[2] * v.vec[2];
     }
 
+    public Vector3 multiply(double c)
+    {
+        return new Vector3(this.vec[0] * c, this.vec[1] * c, this.vec[2] * c);
+    }
+
+    public Vector3 multiply(Vector3 v)
+    {
+        return new Vector3(this.vec[0] * v.vec[0],
+                this.vec[1] * v.vec[1],
+                this.vec[2] * v.vec[2]);
+    }
+
+    public Vector3 divide(double c)
+    {
+        return new Vector3(this.vec[0] / c, this.vec[1] / c, this.vec[2] / c);
+    }
+
+    public Vector3 pow(double exponent)
+    {
+        return new Vector3(Math.pow(this.vec[0], exponent),
+                Math.pow(this.vec[1], exponent),
+                Math.pow(this.vec[2], exponent));
+    }
+
     public double getX()
     {
         return this.vec[0];
@@ -93,13 +109,41 @@ public class Vector3
         return this.vec[2];
     }
 
+    public void copy(Vector3 v)
+    {
+        this.vec[0] = v.vec[0];
+        this.vec[1] = v.vec[1];
+        this.vec[2] = v.vec[2];
+    }
+
     public double getMagnitude()
     {
-        return Math.sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
+        return Math.sqrt(this.vec[0] * this.vec[0]
+                + this.vec[1] * this.vec[1]
+                + this.vec[2] * this.vec[2]);
+    }
+
+    public double getMagnitudeSquared()
+    {
+        return this.vec[0] * this.vec[0]
+            + this.vec[1] * this.vec[1]
+            + this.vec[2] * this.vec[2];
     }
 
     public Vector3 getUnitVector()
     {
         return this.divide(this.getMagnitude());
+    }
+
+    static public Vector3 random(double min, double max)
+    {
+        Random rng = new Random();
+
+        double difference = max - min;
+
+        Vector3 randomVector = new Vector3(rng.nextDouble(), rng.nextDouble(),
+                rng.nextDouble());
+
+        return randomVector.multiply(difference).add(new Vector3(min));
     }
 }
