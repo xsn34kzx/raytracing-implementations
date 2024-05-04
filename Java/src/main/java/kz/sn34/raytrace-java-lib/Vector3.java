@@ -63,6 +63,14 @@ public class Vector3
             + this.vec[2] * v.vec[2];
     }
 
+    public Vector3 cross(Vector3 v)
+    {
+        return new Vector3(
+                this.vec[1] * v.vec[2] - this.vec[2] * v.vec[1],
+                -(this.vec[0] * v.vec[2] - this.vec[2] * v.vec[0]),
+                this.vec[0] * v.vec[1] - this.vec[1] * v.vec[0]);
+    }
+
     public double weightedDot(Vector3 v, Vector3 weights)
     {
         return weights.vec[0] * this.vec[0] * v.vec[0]

@@ -23,7 +23,9 @@ public class Main
 
                 ppmOutput.printf("P3\n%d %d\n255\n", width, height);
 
-                Camera cam = new Camera();
+                Camera cam = new Camera(new Vector3(-2, 2, 1),
+                        new Vector3(0, 0, -1), new Vector3(0, 1, 0),
+                        20, 1);
 
                 HitableList world = new HitableList();
                 world.add(new Sphere(new Vector3(0, 0, -1), 0.5,
