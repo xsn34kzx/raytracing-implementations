@@ -2,6 +2,7 @@ package kz.sn34.raytrace_java_lib;
 
 import java.util.Random;
 
+// TODO: Make connection between Vector2 and Vector3 classes
 public class Vector2
 {
     private double[] vec;

@@ -13,11 +13,8 @@ public class Lambertian extends Material
     public boolean scatter(Ray r, HitRecord rec, Vector3 attenuation,
             Ray scattered)
     {
-        Vector3 randVector = Vector3.getRandomInUnitSphere();
+        Vector3 randVector = Vector3.getRandomInUnitSphere().getUnitVector();
       
-        if(randVector.dot(rec.getNormal()) <= 0)
-            randVector = randVector.multiply(-1);
-
         Vector3 scatterDirection = rec.getNormal().add(randVector);
 
         if(Vector3.isNearZero(scatterDirection))

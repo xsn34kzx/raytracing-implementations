@@ -4,11 +4,10 @@ public class Spheroid extends Sphere
 {
     private Vector3 coefficients;
 
-    public Spheroid(Vector3 coefficients, Vector3 center, double radius)
+    public Spheroid(Vector3 coefficients, Vector3 center, Material mat)
     {
-        // Constructors removed and default to Lambertian until issues with
-        // rendering are fixed later
-        super(center, radius, new Lambertian(new Vector3(1)));
+        // TODO: Change Sphere & Spheroid class relationship
+        super(center, 1, mat);
         this.coefficients = coefficients;
     }
 
@@ -16,7 +15,6 @@ public class Spheroid extends Sphere
     public boolean hit(Ray r, double tMin, double tMax, HitRecord rec)
     {
         Vector3 center = this.getCenter();
-        double radius = this.getRadius();
 
         Vector3 rayOriginMinusCenter = r.getOrigin().subtract(center);
         Vector3 rayDirection = r.getDirection();
@@ -24,40 +22,34 @@ public class Spheroid extends Sphere
         double a = rayDirection.weightedDot(rayDirection, this.coefficients);
         double b = rayDirection.weightedDot(rayOriginMinusCenter, 
                 this.coefficients);
-        double c = rayOriginMinusCenter.dot(rayOriginMinusCenter)
-            - radius * radius;
+        double c = rayOriginMinusCenter.weightedDot(rayOriginMinusCenter,
+                this.coefficients) - 1;
 
         double discriminant = b * b - a * c;
 
-        if(discriminant > 0)
+        if(discriminant <= 0)
+            return false;
+
+        double sqrtDiscriminant = Math.sqrt(discriminant);
+
+        double root = (-b - sqrtDiscriminant) / a;
+        if(root >= tMax || root <= tMin)
         {
-            double sqrtDiscriminant = Math.sqrt(discriminant);
-
-            double closestRoot = (-b - sqrtDiscriminant) / a;
-            if(closestRoot < tMax && closestRoot > tMin)
-            {
-                Vector3 point = r.pointAt(closestRoot);
-
-                rec.setT(closestRoot);
-                rec.setPoint(point);
-                rec.setNormal(point.subtract(center).getUnitVector());
-
-                return true;
-            }
-
-            double farthestRoot = (-b + sqrtDiscriminant) / a;
-            if(farthestRoot < tMax && farthestRoot > tMin)
-            {
-                Vector3 point = r.pointAt(farthestRoot);
-
-                rec.setT(farthestRoot);
-                rec.setPoint(point);
-                rec.setNormal(point.subtract(center).getUnitVector());
-
-                return true;
-            }
+            root = (-b + sqrtDiscriminant) / a;
+            if(root >= tMax || root <= tMin)
+                return false;
         }
-        
-        return false;
+
+        Vector3 point = r.pointAt(root);
+        Vector3 normal = point.subtract(center).getUnitVector();
+
+
+        // TODO: Investigate normal vector calculation/setting issues
+        rec.setT(root);
+        rec.setPoint(point);
+        rec.setMaterial(this.getMaterial());
+        rec.setFaceNormal(rayDirection, normal);
+
+        return true;
     }
 }

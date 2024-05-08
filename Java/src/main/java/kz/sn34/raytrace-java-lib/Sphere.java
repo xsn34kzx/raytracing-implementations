@@ -28,6 +28,11 @@ public class Sphere implements Hitable
         return this.radius;
     }
 
+    public Material getMaterial()
+    {
+        return this.mat;
+    }
+
     @Override
     public boolean hit(Ray r, double tMin, double tMax, HitRecord rec)
     {

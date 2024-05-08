@@ -24,28 +24,29 @@ public class Main
 
                 ppmOutput.printf("P3\n%d %d\n255\n", width, height);
 
-                Vector3 lookFrom = new Vector3(3, 3, 2);
-                Vector3 lookAt = new Vector3(0, 0, -1);
+                Vector3 lookFrom = new Vector3(-2, 2, 5);
+                Vector3 lookAt = new Vector3(0, 2, -1);
 
                 Camera cam = new Camera(lookFrom, lookAt, new Vector3(0, 1, 0),
-                        20, (double) width / height, 2, 
+                        45, (double) width / height, 0, 
                         (lookFrom.subtract(lookAt).getMagnitude()));
 
                 HitableList world = new HitableList();
-                world.add(new Sphere(new Vector3(0, 0, -1), 0.5,
+                world.add(new Sphere(new Vector3(1, 2.5, -1.5), 0.5,
                             new Lambertian(new Vector3(0.1, 0.2, 0.5))));
-                //world.add(new Spheroid(new Vector3(1, 1,1), 
-                //            new Vector3(0, 0, -1), 0.5));
-                //world.add(new Sphere(new Vector3(-0.75, 0, -1.5), 0.25));
+                world.add(new Spheroid(new Vector3(0.25, 1, 1),
+                            new Vector3(0, 1, -1), new Lambertian(new Vector3(0.8, 0.8, 0))));
+
                 world.add(new Sphere(new Vector3(0, -100.5, -1), 100,
                             new Lambertian(new Vector3(0.8, 0.8, 0))));
-                //world.add(new Plane(new Vector3(0, -1, -0.25), -1));
+                /*
                 world.add(new Sphere(new Vector3(-1, 0, -1), 0.4,
                             new Dielectric(1/1.5)));
                 world.add(new Sphere(new Vector3(-1, 0, -1), 0.5,
                             new Dielectric(1.5)));
                 world.add(new Sphere(new Vector3(1, 0, -1), 0.5,
                             new Metal(new Vector3(0.8, 0.6, 0.2), 1)));
+                            */
 
                 double effHeight = height - 1;
                 double effWidth = width - 1;
@@ -53,7 +54,7 @@ public class Main
                 double pixelHeight = 1 / effHeight; 
                 double pixelWidth = 1 / effWidth;
 
-                double samples = 10;
+                double samples = 25;
                 double samplesSqr = samples * samples;
 
                 double subPixelHeight = pixelHeight / (samples - 1);
@@ -135,7 +136,7 @@ public class Main
                         rayColor(scattered, world, depth - 1));
             }
 
-            return new Vector3();
+            return new Vector3(1);
         }
         else
         {
