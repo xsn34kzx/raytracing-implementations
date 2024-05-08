@@ -1,5 +1,6 @@
 import kz.sn34.raytrace_java_lib.*;
 import java.io.*;
+import java.util.Random;
 
 public class Main
 {
@@ -23,9 +24,12 @@ public class Main
 
                 ppmOutput.printf("P3\n%d %d\n255\n", width, height);
 
-                Camera cam = new Camera(new Vector3(-2, 2, 1),
-                        new Vector3(0, 0, -1), new Vector3(0, 1, 0),
-                        20, 1);
+                Vector3 lookFrom = new Vector3(3, 3, 2);
+                Vector3 lookAt = new Vector3(0, 0, -1);
+
+                Camera cam = new Camera(lookFrom, lookAt, new Vector3(0, 1, 0),
+                        20, (double) width / height, 2, 
+                        (lookFrom.subtract(lookAt).getMagnitude()));
 
                 HitableList world = new HitableList();
                 world.add(new Sphere(new Vector3(0, 0, -1), 0.5,
@@ -49,11 +53,13 @@ public class Main
                 double pixelHeight = 1 / effHeight; 
                 double pixelWidth = 1 / effWidth;
 
-                double samples = 5;
+                double samples = 10;
                 double samplesSqr = samples * samples;
 
                 double subPixelHeight = pixelHeight / (samples - 1);
                 double subPixelWidth = pixelWidth / (samples - 1);
+
+                Random rng = new Random();
 
                 for(double row = 0; row <= effHeight; row++)
                 {
@@ -64,7 +70,7 @@ public class Main
                         double u = col / effWidth;
 
                         Vector3 pixelPercents = new Vector3();
-
+                        
                         for(double subRow = 0; subRow < samples; subRow++)
                         {
                             double subV = v + subRow * subPixelHeight;
@@ -79,8 +85,7 @@ public class Main
                             }
                         }
 
-                        pixelPercents = pixelPercents.divide(samplesSqr)
-                            .sqrt();
+                        pixelPercents = pixelPercents.divide(samplesSqr).sqrt();
 
                         Color pixel = new Color(
                                 (int) (pixelPercents.getX() * 255),

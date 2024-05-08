@@ -20,12 +20,12 @@ public class Metal extends Material
 
         Vector3 reflected = direction.reflect(curNormal);
 
-        Vector3 randUnitVector = Vector3.getRandomUnitVector();
+        Vector3 randVector = Vector3.getRandomInUnitSphere();
 
         scattered.setOrigin(rec.getPoint());
         scattered.setDirection(
                 reflected.getUnitVector()
-                .add(randUnitVector.multiply(this.fuzz)));
+                .add(randVector.multiply(this.fuzz)));
         attenuation.copy(this.albedo);
 
         return true;

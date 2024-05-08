@@ -11,18 +11,17 @@ public class Vector3
         this(0);
     }
 
+    public Vector3(double a)
+    {
+        this(a, a, a);
+    }
+
     public Vector3(double a, double b, double c)
     {
         this.vec = new double[3];
         this.vec[0] = a;
         this.vec[1] = b;
         this.vec[2] = c;
-    }
-
-    public Vector3(double a)
-    {
-        this.vec = new double[3];
-        this.vec[0] = this.vec[1] = this.vec[2] = a;
     }
     
     public Vector3 add(Vector3 v)
@@ -178,14 +177,14 @@ public class Vector3
         return randomVector.multiply(difference).add(new Vector3(min));
     }
 
-    static public Vector3 getRandomUnitVector()
+    static public Vector3 getRandomInUnitSphere()
     {
         Vector3 randVector;
         do {
             randVector = Vector3.random(-1, 1);
         } while(randVector.getMagnitudeSquared() >= 1);
 
-        return randVector.getUnitVector();
+        return randVector;
     }
 
     static boolean isNearZero(Vector3 v)
