@@ -2,7 +2,6 @@ package kz.sn34.raytrace_java_lib;
 
 public class Metal extends Material
 {
-    private Vector3 albedo;
     private double fuzz;
 
     public Metal(Vector3 albedo, double fuzz)

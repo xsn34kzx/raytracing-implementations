@@ -14,7 +14,8 @@ public class Dielectric extends Material
     public boolean scatter(Ray r, HitRecord rec, Vector3 attenuation,
             Ray scattered)
     {
-        attenuation.copy(new Vector3(1));
+        this.albedo = new Vector3(1);
+        attenuation.copy(albedo);
         double refractionIndex = rec.getFrontFace() 
             ? (1/this.refractionIndex) : this.refractionIndex;
 

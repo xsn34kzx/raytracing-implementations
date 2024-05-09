@@ -72,6 +72,6 @@ public class HitRecord
     public void setFaceNormal(Vector3 rayDirection, Vector3 normal)
     {
         this.frontFace = (rayDirection.dot(normal) < 0);
-        this.normal = this.frontFace ? normal : normal.multiply(-1);
+        this.normal = this.frontFace ? normal : normal.multiply(1);
     }
 }

@@ -2,8 +2,6 @@ package kz.sn34.raytrace_java_lib;
 
 public class Lambertian extends Material
 {
-    private Vector3 albedo;
-
     public Lambertian(Vector3 albedo)
     {
         this.albedo = albedo;

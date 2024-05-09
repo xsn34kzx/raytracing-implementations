@@ -32,6 +32,12 @@ public class Color
         return this.rgb[2];
     }
 
+    public int getRGBValue()
+    {
+        // Creating composite RGB integer based on default RGB ColorModel
+        return (this.rgb[0] << 16) | (this.rgb[1] << 8) | this.rgb[2];
+    }
+
     @Override
     public String toString()
     {

@@ -8,8 +8,8 @@ import kz.sn34.raytrace_java_lib.Raytracer;
 
 public class App
 {
-    static private Raytracer raytracer;
-    static public BufferedImage img;
+    static public Raytracer raytracer;
+    private BufferedImage img;
 
     public static void main(String[] args)
     {
@@ -21,12 +21,13 @@ public class App
         ImagePanel imagePanel = new ImagePanel();
         mainWindow.setSize(500, 500);
 
+        // Screen setup
         JButton renderBtn = new JButton("RENDER");
         renderBtn.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e)
                 {
-                    App.img = App.raytracer.render();
+                    imagePanel.setImage(App.raytracer.render());
                     imagePanel.repaint();
                     System.out.println("Done!");
                 }
@@ -60,38 +61,58 @@ public class App
         infoC.weighty = 0;
         infoPanel.add(renderBtn, infoC);
 
+        // Main menu configuration
         JMenuBar mainMenu = new JMenuBar();
-        JMenuItem test = new JMenuItem("Test");
-        test.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e)
-                {
-                    System.out.println("Hey!");
-                }
-            }
-        );
-        mainMenu.add(test);
+        JMenu fileMenu = new JMenu("File");
+        fileMenu.add(new JMenuItem("Export World"));
+        fileMenu.add(new JMenuItem("Import World"));
+        fileMenu.add(new JMenuItem("Save Render"));
+
+        JMenu cameraMenu = new JMenu("Camera");
+        cameraMenu.add(new JMenuItem("Settings"));
+
+        JMenu renderMenu = new JMenu("Render");
+        renderMenu.add(new JMenuItem("Quick"));
+        renderMenu.add(new JMenuItem("Full"));
+
+        mainMenu.add(fileMenu);
+        mainMenu.add(cameraMenu);
+        mainMenu.add(renderMenu);
 
         mainWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         mainWindow.add(mainPanel);
         mainWindow.setJMenuBar(mainMenu);
         mainWindow.setVisible(true);
+
+        // Camera window
+        cameraWindow = new JFrame("Camera - Settings");
+        cameraWindow.setSize(750, 500);
+        JPanel cameraPanel = new JPanel(new GridBagLayout())
+
     }
 }
 
 class ImagePanel extends JPanel
 {
+    private Image img;
+
     public ImagePanel()
     {
         super();
+    }
+
+    public void setImage(Image img)
+    {
+        this.img = img;
     }
 
     @Override
     public void paintComponent(Graphics g)
     {
         super.paintComponent(g);
-        g.setColor(Color.CYAN);
+        g.setColor(Color.WHITE);
         g.fillRect(0, 0, this.getSize().width, this.getSize().height);
-        g.drawImage(App.img, 0, 0, null);
+        g.drawImage(this.img, 0, 0, null);
     }
 }
