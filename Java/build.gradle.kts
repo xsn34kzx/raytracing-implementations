@@ -3,5 +3,5 @@ plugins {
 }
 
 application {
-    mainClass = "Main"
+    mainClass = "App"
 }

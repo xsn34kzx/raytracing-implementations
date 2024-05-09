@@ -1,44 +1,58 @@
-import kz.sn34.raytrace_java_lib.*;
+package kz.sn34.raytrace_java_lib;
+
 import java.io.*;
 import java.util.Random;
+import java.awt.image.*;
+import javax.imageio.*;
 
-public class Main
+public class Raytracer 
 {
-    public static void main(String[] args)
+    private HitableList world;
+    private Camera cam;
+    private int width;
+    private int height;
+
+    public Raytracer()
     {
-        if(args.length == 3)
-        {
+        this.width = 100;
+        this.height = 100;
+        Vector3 lookFrom = new Vector3(-2, 2, 5);
+        Vector3 lookAt = new Vector3(0, 2, -1);
+
+        this.cam = new Camera(lookFrom, lookAt, new Vector3(0, 1, 0),
+                45, (double) width / height, 0, 
+                (lookFrom.subtract(lookAt).getMagnitude()));
+
+        this.world = new HitableList();
+        this.world.add(new Sphere(new Vector3(1, 2.5, -1.5), 0.5,
+                    new Lambertian(new Vector3(0.1, 0.2, 0.5))));
+        this.world.add(new Spheroid(new Vector3(0.25, 1, 1),
+                    new Vector3(0, 1, -1), new Lambertian(new Vector3(0.8, 0.8, 0))));
+
+        this.world.add(new Sphere(new Vector3(0, -100.5, -1), 100,
+                    new Lambertian(new Vector3(0.8, 0.8, 0))));
+    }
+
+    public BufferedImage render()
+    {
             try {
-                int width = Integer.parseInt(args[0]);
-                int height = Integer.parseInt(args[1]);
-                String fullPath = "./img/" + args[2] + ".ppm"; 
+                String fullPath = "./img/appTest.ppm"; 
+                String testPath = "./img/appTest.png";
+
+                BufferedImage img = new BufferedImage(this.width, this.height,
+                        BufferedImage.TYPE_INT_RGB);
 
                 File outputFolder = new File("./img");
                 if(!outputFolder.exists())
                     outputFolder.mkdir();
 
                 File ppmFile = new File(fullPath);
+                File pngFile = new File(testPath);
                 ppmFile.createNewFile();
                 PrintWriter ppmOutput = new PrintWriter(
                         new FileOutputStream(ppmFile));
 
                 ppmOutput.printf("P3\n%d %d\n255\n", width, height);
-
-                Vector3 lookFrom = new Vector3(-2, 2, 5);
-                Vector3 lookAt = new Vector3(0, 2, -1);
-
-                Camera cam = new Camera(lookFrom, lookAt, new Vector3(0, 1, 0),
-                        45, (double) width / height, 0, 
-                        (lookFrom.subtract(lookAt).getMagnitude()));
-
-                HitableList world = new HitableList();
-                world.add(new Sphere(new Vector3(1, 2.5, -1.5), 0.5,
-                            new Lambertian(new Vector3(0.1, 0.2, 0.5))));
-                world.add(new Spheroid(new Vector3(0.25, 1, 1),
-                            new Vector3(0, 1, -1), new Lambertian(new Vector3(0.8, 0.8, 0))));
-
-                world.add(new Sphere(new Vector3(0, -100.5, -1), 100,
-                            new Lambertian(new Vector3(0.8, 0.8, 0))));
                 /*
                 world.add(new Sphere(new Vector3(-1, 0, -1), 0.4,
                             new Dielectric(1/1.5)));
@@ -46,7 +60,7 @@ public class Main
                             new Dielectric(1.5)));
                 world.add(new Sphere(new Vector3(1, 0, -1), 0.5,
                             new Metal(new Vector3(0.8, 0.6, 0.2), 1)));
-                            */
+                */
 
                 double effHeight = height - 1;
                 double effWidth = width - 1;
@@ -81,7 +95,7 @@ public class Main
                                 double subU = u + subCol * subPixelWidth;
 
                                 pixelPercents = pixelPercents.add(
-                                        Main.rayColor(cam.getRay(subU, subV),
+                                        this.rayColor(cam.getRay(subU, subV),
                                         world, 50));
                             }
                         }
@@ -94,11 +108,20 @@ public class Main
                                 (int) (pixelPercents.getZ() * 255)
                                 );
 
+                        // red in 16-23, green 8-15, blue 0-7
+                        int rgb = pixel.getRed() << 16;
+                        rgb |= (pixel.getGreen() << 8);
+                        rgb |= (pixel.getBlue() << 0);
+                        img.setRGB((int) col, (int) row, rgb);
+
                         ppmOutput.println(pixel);
                     }
                 }
 
+                ImageIO.write(img, "PNG", pngFile);
                 ppmOutput.close();
+
+                return img;
             }
             catch(NumberFormatException e)
             {
@@ -112,12 +135,11 @@ public class Main
             {
                 System.out.println("File could not be created!");
             }
-        }
-        else
-            System.out.println("Only three arguments allowed!");
-    }
 
-    static private Vector3 rayColor(Ray r, Hitable world, int depth)
+            return null;
+        }
+
+    private Vector3 rayColor(Ray r, Hitable world, int depth)
     {
         if(depth <= 0)
             return new Vector3();
