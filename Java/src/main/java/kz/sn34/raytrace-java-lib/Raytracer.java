@@ -35,6 +35,11 @@ public class Raytracer
                     new Lambertian(new Vector3(0.8, 0.8, 0))));
     }
 
+    public Camera getCamera()
+    {
+        return this.cam;
+    }
+
     public BufferedImage render()
     {
         String testPath = "./img/appTest.png";
