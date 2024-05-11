@@ -1,3 +1,4 @@
+import java.util.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
@@ -16,12 +17,12 @@ public class App
 {
     private JLabel propertiesTag;
 
-    private JTabbedPane properties;
+    private JScrollPane properties;
     private JPanel objProperties;
-    private JPanel matProperties;
 
     private DefaultTreeModel tree;
     private DefaultMutableTreeNode root;
+    private DefaultMutableTreeNode world;
 
     private Raytracer raytracer;
     private BufferedImage img;
@@ -30,41 +31,42 @@ public class App
     public App()
     {
         this.raytracer = new Raytracer();
-        this.propertiesTag = new JLabel("Properties"); 
         this.imagePanel = new ImagePanel();
+
+        this.propertiesTag = new JLabel("Properties"); 
+        this.properties = new JScrollPane();
+        this.tree = new DefaultTreeModel(root);
+        this.root = new DefaultMutableTreeNode();
+        this.world = new DefaultMutableTreeNode("World");
     }
 
     public static void main(String[] args)
     {
         App app = new App();
+        // Tree function to init tree by filling string array, populating
+        // children based on those
+        //
+        // Delete and add methods will refresh tree
+        //
+        // import world will completely clear children, populate all arrays, and
+        // and then refresh
 
         // Tree Exploration
-        DefaultMutableTreeNode root = new DefaultMutableTreeNode();
         DefaultMutableTreeNode tn1 = new DefaultMutableTreeNode("Test1");
         DefaultMutableTreeNode tn2 = new DefaultMutableTreeNode("Test2");
         DefaultMutableTreeNode tn3 = new DefaultMutableTreeNode("Test3");
 
-        root.add(tn1);
-        root.add(tn2);
+        app.root.add(tn1);
+        app.root.add(tn2);
         tn2.add(tn3);
-        DefaultTreeModel tm = new DefaultTreeModel(root);
-
         // Screen setup
         JFrame mainWindow = new JFrame("Raytracing Implementations - Java");
         JPanel mainPanel = new JPanel(new GridBagLayout());
         mainWindow.setSize(1000, 1000);
 
-        JButton renderBtn = new JButton("RENDER");
-        renderBtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e)
-            {
-                app.imagePanel.setImage(app.raytracer.render());
-                app.imagePanel.repaint();
-                System.out.println("Done!");
-            }
-        });
-
+        JButton confirmBtn = new JButton("CONFIRM");
+        JButton cancelBtn = new JButton("CANCEL");
+        
         JPanel infoPanel = new JPanel(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
 
@@ -89,7 +91,7 @@ public class App
         infoC.weightx = 1;
         infoC.weighty = 1;
         
-        JTree sample = new JTree(tm);
+        JTree sample = new JTree(app.tree);
         sample.addTreeSelectionListener(new TreeSelectionListener() {
             @Override
             public void valueChanged(TreeSelectionEvent e)
@@ -102,6 +104,21 @@ public class App
         JScrollPane worldPane = new JScrollPane(sample);
         sample.setRootVisible(false);
 
+        cancelBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                app.properties.removeAll();
+                app.properties.revalidate();
+                app.properties.repaint();
+                sample.clearSelection();
+
+                confirmBtn.setEnabled(false);
+                cancelBtn.setEnabled(false);
+            }
+        });
+
+
         infoPanel.add(worldPane, infoC);
 
         // Settings pane
@@ -109,14 +126,18 @@ public class App
         infoPanel.add(app.propertiesTag, infoLabelConstraints);
         
         JPanel objectTab = new JPanel(new FlowLayout());
-        JScrollPane camTab = new JScrollPane(new CameraTab(app.raytracer.getCamera()));
+        app.properties.setViewportView(new CameraTab(app.raytracer.getCamera()));
+        app.properties.revalidate();
         //settingsTabs.addTab("Object", camTab);
         //settingsTabs.addTab("Test2", new JPanel());
-        infoPanel.add(camTab, infoC);
+        infoPanel.add(app.properties, infoC);
 
+        infoC.gridwidth = GridBagConstraints.RELATIVE;
         infoC.fill = GridBagConstraints.HORIZONTAL;
         infoC.weighty = 0;
-        infoPanel.add(renderBtn, infoC);
+        infoPanel.add(cancelBtn, infoC);
+        infoC.gridwidth = GridBagConstraints.REMAINDER;
+        infoPanel.add(confirmBtn, infoC);
 
         // Main menu configuration
         app.initMenuBar(mainWindow); 
@@ -149,12 +170,13 @@ public class App
                 String fileName = savePrompt.getFile();
                 if(fileName != null)
                 {
+                    String filePath = savePrompt.getDirectory() + fileName;
                     try {
-                        File imgFile = new File(fileName);
+                        File imgFile = new File(filePath);
 
-                        if(fileName.endsWith(".png"))
+                        if(filePath.endsWith(".png"))
                             ImageIO.write(img, "PNG", imgFile);
-                        else if(fileName.endsWith(".jpg"))
+                        else if(filePath.endsWith(".jpg"))
                             ImageIO.write(img, "JPG", imgFile);
                         else
                             throw new Exception("Incorrect file extension!");
@@ -298,6 +320,11 @@ class CameraTab extends JPanel
         this.add(lookAtPanel);
     }
 
+    public void populateFields()
+    {
+
+    }
+
     public void initTextFields(JPanel parent, String title, JTextField[] fieldList)
     {
         GridBagConstraints lookAtC = new GridBagConstraints();
@@ -350,3 +377,15 @@ class NumberListener implements KeyListener
     public void keyPressed(KeyEvent e)
     {}
 }
+
+//TODO:
+//  - Get Tree working
+//      - Selections generate proper properties pane & edits reflect in world
+//      - Addition and deletion change tree
+//  - Export/Import working
+//      - Create text file with list of objects and properties
+//      - Read text file, clear hitable list & other lists, populate tree and
+//      hitable list
+//  - Add & delete objects buttons
+//      - Pop up menu with combo boxes and confirmation button
+//  - Change World & Camera setings

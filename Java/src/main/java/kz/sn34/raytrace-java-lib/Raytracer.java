@@ -4,20 +4,37 @@ import java.io.*;
 import java.util.Random;
 import java.awt.image.*;
 import javax.imageio.*;
+import java.util.ArrayList;
+
 
 public class Raytracer 
 {
     private HitableList world;
+    private ArrayList<String> objNames;
+    private ArrayList<String> matNames;
     private Camera cam;
+
     private int width;
+    private double subWidth;
+
     private int height;
+    private double subHeight;
+
+    private int depth;
+    private int samples;
 
     //TODO: Background/LERP settings
 
     public Raytracer()
     {
-        this.width = 100;
-        this.height = 100;
+        this.width = 200;
+        this.height = 200;
+
+        this.samples = 25;
+        this.depth = 50;
+
+        this.refreshDimensionDependents();
+
         Vector3 lookFrom = new Vector3(-2, 2, 5);
         Vector3 lookAt = new Vector3(0, 2, -1);
 
@@ -40,52 +57,102 @@ public class Raytracer
         return this.cam;
     }
 
+    public double getSubWidth()
+    {
+        return this.subWidth;
+    }
+
+    public double getSubHeight()
+    {
+        return this.subHeight;
+    }
+
+    public int getSamples()
+    {
+        return this.samples;
+    }
+
+    public void refreshDimensionDependents()
+    {
+        double effWidth = this.width - 1;
+        double pixelWidth = 1 / effWidth;
+        this.subWidth = pixelWidth / (this.samples - 1);
+
+        double effHeight = this.height - 1;
+        double pixelHeight = 1 / effHeight;
+        this.subHeight = pixelHeight / (this.samples - 1);
+    }
+
     public BufferedImage render()
     {
-        String testPath = "./img/appTest.png";
-
         BufferedImage img = new BufferedImage(this.width, this.height,
                 BufferedImage.TYPE_INT_RGB);
-
-        File outputFolder = new File("./img");
-        if(!outputFolder.exists())
-            outputFolder.mkdir();
-
-        File pngFile = new File(testPath);
+        
+        SampleThread.setRaytracer(this);
 
         double effHeight = height - 1;
         double effWidth = width - 1;
 
-        double pixelHeight = 1 / effHeight; 
-        double pixelWidth = 1 / effWidth;
-
-        double samples = 25;
         double samplesSqr = samples * samples;
 
-        double subPixelHeight = pixelHeight / (samples - 1);
-        double subPixelWidth = pixelWidth / (samples - 1);
+        int threadAmount = (samples >= 20) ? Math.floorDiv(samples, 10) : 1;
+        int intervalLength = Math.round((float) samples / threadAmount);
+        SampleThread[] threads = new SampleThread[threadAmount];
 
         for(double row = 0; row <= effHeight; row++)
         {
             double v = row / effHeight;
+            SampleThread.setV(v);
 
             for(double col = 0; col <= effWidth; col++)
             {
                 double u = col / effWidth;
+                SampleThread.setU(u);
 
                 Vector3 pixelPercents = new Vector3();
-
-                for(double subRow = 0; subRow < samples; subRow++)
+                if(threadAmount > 1)
                 {
-                    double subV = v + subRow * subPixelHeight;
-
-                    for(double subCol = 0; subCol < samples; subCol++)
+                    SampleThread.setDestination(pixelPercents);
+                    int intervalStart = 0;
+                    for(int i = 0; i < threads.length; i++)
                     {
-                        double subU = u + subCol * subPixelWidth;
+                        if(i + 1 == threads.length)
+                        {
+                            threads[i] = new SampleThread(intervalStart, 
+                                    samples);
+                        }
+                        else
+                        {
+                            threads[i] = new SampleThread(intervalStart,
+                                    intervalStart + intervalLength);
+                        }
 
-                        pixelPercents = pixelPercents.add(
-                                this.rayColor(cam.getRay(subU, subV),
-                                    world, 50));
+                        intervalStart += intervalLength + 1;
+                        threads[i].start();
+                    }
+
+                    for(int i = 0; i < threads.length; i++)
+                    {
+                        try {
+                            threads[i].join();
+                        }
+                        catch(Exception e)
+                        {}
+                    }
+                }
+                else
+                {
+                    for(double subRow = 0; subRow < this.samples; subRow++)
+                    {
+                        double subV = v + subRow * subHeight;
+
+                        for(double subCol = 0; subCol < this.samples; subCol++)
+                        {
+                            double subU = u + subCol * subWidth;
+
+                            pixelPercents.addEquals(this.color(
+                                        cam.getRay(subU, subV), this.depth));
+                        }
                     }
                 }
 
@@ -100,8 +167,6 @@ public class Raytracer
                 img.setRGB((int) col, (int) row, pixel.getRGBValue());
             }
         }
-
-        //ImageIO.write(img, "PNG", pngFile);
 
         return img;
     }
@@ -130,7 +195,7 @@ public class Raytracer
             {
                 double u = col / effWidth;
 
-                Vector3 pixelPercents = this.quickColor(cam.getRay(u, v), world);
+                Vector3 pixelPercents = this.quickColor(cam.getRay(u, v));
 
                 Color pixel = new Color(
                         (int) (pixelPercents.getX() * 255),
@@ -146,14 +211,20 @@ public class Raytracer
 
         return img;
     }
-    private Vector3 rayColor(Ray r, Hitable world, int depth)
+    
+    public Vector3 getColor(double u, double v)
+    {
+        return this.color(this.cam.getRay(u, v), this.depth);
+    }
+
+    private Vector3 color(Ray r, int depth)
     {
         if(depth <= 0)
             return new Vector3();
 
         HitRecord curRec = new HitRecord();
 
-        if(world.hit(r, Hitable.TMIN, Hitable.TMAX, curRec))
+        if(this.world.hit(r, Hitable.TMIN, Hitable.TMAX, curRec))
         {
             Ray scattered = new Ray();
             Vector3 attenuation = new Vector3();
@@ -162,7 +233,7 @@ public class Raytracer
             if(recMat.scatter(r, curRec, attenuation, scattered))
             {
                 return attenuation.multiply(
-                        rayColor(scattered, world, depth - 1));
+                        color(scattered, depth - 1));
             }
 
             return new Vector3(1);
@@ -177,11 +248,11 @@ public class Raytracer
         }
     }
 
-    private Vector3 quickColor(Ray r, Hitable world)
+    private Vector3 quickColor(Ray r)
     {
         HitRecord curRec = new HitRecord();
 
-        if(world.hit(r, Hitable.TMIN, Hitable.TMAX, curRec))
+        if(this.world.hit(r, Hitable.TMIN, Hitable.TMAX, curRec))
         {
             return curRec.getMaterial().getAlbedo();
         }
@@ -192,6 +263,68 @@ public class Raytracer
             double t = 0.5 * (r.getDirection().getUnitVector().getY() + 1);
 
             return colorPercents.lerp(t);
+        }
+    }
+}
+
+class SampleThread extends Thread
+{
+    private static Vector3 destination;
+    private static Raytracer raytracer;
+    private static double u;
+    private static double v;
+
+    private int start;
+    private int end;
+
+    public SampleThread(int start, int end)
+    {
+        this.start = start;
+        this.end = end;
+    }
+
+    static public void setDestination(Vector3 destination)
+    {
+        SampleThread.destination = destination;
+    }
+
+    static public void setRaytracer(Raytracer raytracer)
+    {
+        SampleThread.raytracer = raytracer;
+    }
+
+    static public void setU(double u)
+    {
+        SampleThread.u = u;
+    }
+
+    static public void setV(double v)
+    {
+        SampleThread.v = v;
+    }
+
+    @Override
+    public void run()
+    {
+        double subWidth = raytracer.getSubWidth();
+        double subHeight = raytracer.getSubHeight();
+        int samples = raytracer.getSamples();
+
+        for(double subRow = start; subRow < end; subRow++)
+        {
+            double subV = v + subRow * subHeight;
+
+            for(double subCol = 0; subCol < samples; subCol++)
+            {
+                double subU = u + subCol * subWidth;
+
+                Vector3 colorPercents = raytracer.getColor(subU, subV);
+
+                synchronized(destination)
+                {
+                    destination.addEquals(colorPercents);
+                }
+            }
         }
     }
 }

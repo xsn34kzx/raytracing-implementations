@@ -32,6 +32,15 @@ public class Vector3
                 this.vec[2] + v.vec[2]);
     }
 
+    public Vector3 addEquals(Vector3 v)
+    {
+        this.vec[0] += v.vec[0];
+        this.vec[1] += v.vec[1];
+        this.vec[2] += v.vec[2];
+
+        return this;
+    }
+
     public Vector3 add(Vector3[] terms)
     {
         double x = this.vec[0];
