@@ -12,6 +12,7 @@ import javax.imageio.*;
 
 import kz.sn34.raytrace_java_lib.Raytracer;
 import kz.sn34.raytrace_java_lib.Camera;
+import kz.sn34.raytrace_java_lib.WorldEntry;
 
 public class App
 {
@@ -22,7 +23,8 @@ public class App
 
     private DefaultTreeModel tree;
     private DefaultMutableTreeNode root;
-    private DefaultMutableTreeNode world;
+    private DefaultMutableTreeNode worldNode;
+    private DefaultMutableTreeNode camNode;
 
     private Raytracer raytracer;
     private BufferedImage img;
@@ -35,9 +37,13 @@ public class App
 
         this.propertiesTag = new JLabel("Properties"); 
         this.properties = new JScrollPane();
-        this.tree = new DefaultTreeModel(root);
         this.root = new DefaultMutableTreeNode();
-        this.world = new DefaultMutableTreeNode("World");
+        this.tree = new DefaultTreeModel(root);
+
+        this.worldNode = new DefaultMutableTreeNode("WORLD");
+        this.camNode = new DefaultMutableTreeNode("CAMERA");
+        this.root.add(camNode);
+        this.root.add(worldNode);
     }
 
     public static void main(String[] args)
@@ -52,21 +58,25 @@ public class App
         // and then refresh
 
         // Tree Exploration
-        DefaultMutableTreeNode tn1 = new DefaultMutableTreeNode("Test1");
-        DefaultMutableTreeNode tn2 = new DefaultMutableTreeNode("Test2");
-        DefaultMutableTreeNode tn3 = new DefaultMutableTreeNode("Test3");
+        app.refreshSceneTree();
+        JPanel prop = new JPanel();
+        CameraPanel camTab = new CameraPanel(app.raytracer.getCamera());
 
-        app.root.add(tn1);
-        app.root.add(tn2);
-        tn2.add(tn3);
+        JButton addBtn = new JButton("+");
+        JButton subtractBtn = new JButton("-");
+        
         // Screen setup
         JFrame mainWindow = new JFrame("Raytracing Implementations - Java");
         JPanel mainPanel = new JPanel(new GridBagLayout());
         mainWindow.setSize(1000, 1000);
 
+        // Info Panel
         JButton confirmBtn = new JButton("CONFIRM");
         JButton cancelBtn = new JButton("CANCEL");
-        
+
+        confirmBtn.setEnabled(false);
+        cancelBtn.setEnabled(false);
+                
         JPanel infoPanel = new JPanel(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
 
@@ -98,9 +108,66 @@ public class App
             {
                 DefaultMutableTreeNode curNode = 
                     (DefaultMutableTreeNode) sample.getLastSelectedPathComponent();
+
+                prop.removeAll();
+                prop.revalidate();
+                prop.repaint();
+
+                subtractBtn.setEnabled(false);
+
+                if(curNode != null)
+                {
+                    if(curNode.toString().equals("CAMERA"))
+                    {
+                        prop.add(camTab);
+                    }
+                    else if(curNode.toString().equals("WORLD"))
+                    {
+                    }
+                    else
+                    {
+                        subtractBtn.setEnabled(true);
+                    }
+
+                    app.propertiesTag.setText(curNode + " - Properties");
+                    prop.revalidate();
+                    prop.repaint();
+
+                    confirmBtn.setEnabled(true);
+                    cancelBtn.setEnabled(true);
+                }
+                else
+                    app.propertiesTag.setText("Properties");
+
                 System.out.println(curNode);
             }
         });
+
+        subtractBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                DefaultMutableTreeNode curNode = 
+                    (DefaultMutableTreeNode) sample.getLastSelectedPathComponent();
+
+                System.out.println(curNode);
+
+                WorldEntry curEntry = (WorldEntry) curNode.getUserObject();
+
+                if(curEntry.isChild())
+                {
+                    curNode = (DefaultMutableTreeNode) curNode.getParent();
+                    curEntry = (WorldEntry) curNode.getUserObject();
+                }
+
+                app.raytracer.deleteWorldEntry(curEntry);
+
+                app.refreshSceneTree();
+                if(app.raytracer.getWorldEntries().size() == 0)
+                    subtractBtn.setEnabled(false);
+            }
+        });
+
         JScrollPane worldPane = new JScrollPane(sample);
         sample.setRootVisible(false);
 
@@ -108,9 +175,6 @@ public class App
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                app.properties.removeAll();
-                app.properties.revalidate();
-                app.properties.repaint();
                 sample.clearSelection();
 
                 confirmBtn.setEnabled(false);
@@ -118,26 +182,32 @@ public class App
             }
         });
 
-
         infoPanel.add(worldPane, infoC);
+
+        GridBagConstraints infoBtnConstraints = new GridBagConstraints();
+        infoBtnConstraints.gridwidth = GridBagConstraints.RELATIVE;
+        infoBtnConstraints.fill = GridBagConstraints.HORIZONTAL;
+        infoBtnConstraints.weightx = 1;
+        infoBtnConstraints.weighty = 0;
+
+        infoPanel.add(subtractBtn, infoBtnConstraints);
+        infoBtnConstraints.gridwidth = GridBagConstraints.REMAINDER;
+        infoPanel.add(addBtn, infoBtnConstraints);
 
         // Settings pane
         //JTabbedPane settingsTabs = new JTabbedPane();
         infoPanel.add(app.propertiesTag, infoLabelConstraints);
         
-        JPanel objectTab = new JPanel(new FlowLayout());
-        app.properties.setViewportView(new CameraTab(app.raytracer.getCamera()));
+        app.properties.setViewportView(prop);
         app.properties.revalidate();
         //settingsTabs.addTab("Object", camTab);
         //settingsTabs.addTab("Test2", new JPanel());
         infoPanel.add(app.properties, infoC);
 
-        infoC.gridwidth = GridBagConstraints.RELATIVE;
-        infoC.fill = GridBagConstraints.HORIZONTAL;
-        infoC.weighty = 0;
-        infoPanel.add(cancelBtn, infoC);
-        infoC.gridwidth = GridBagConstraints.REMAINDER;
-        infoPanel.add(confirmBtn, infoC);
+        infoBtnConstraints.gridwidth = GridBagConstraints.RELATIVE;
+        infoPanel.add(cancelBtn, infoBtnConstraints);
+        infoBtnConstraints.gridwidth = GridBagConstraints.REMAINDER;
+        infoPanel.add(confirmBtn, infoBtnConstraints);
 
         // Main menu configuration
         app.initMenuBar(mainWindow); 
@@ -148,11 +218,82 @@ public class App
         mainWindow.setVisible(true);
     }
 
+    private void refreshSceneTree()
+    {
+        this.worldNode.removeAllChildren();
+        ArrayList<WorldEntry> entries = this.raytracer.getWorldEntries();
+
+        if(entries.size() != 0)
+        {
+            DefaultMutableTreeNode parent = 
+                new DefaultMutableTreeNode(entries.get(0));
+
+            for(WorldEntry entry : this.raytracer.getWorldEntries())
+            {
+                DefaultMutableTreeNode curNode = new DefaultMutableTreeNode(entry);
+
+                if(entry.isChild())
+                    parent.add(curNode);
+                else
+                {
+                    parent = curNode;
+                    this.worldNode.add(curNode);
+                }
+
+            }
+        }
+
+        this.tree.nodeChanged(this.worldNode);
+        this.tree.reload(this.worldNode);
+    }
+
     private void initMenuBar(JFrame frame)
     {
         JMenuBar mainMenu = new JMenuBar();
         JMenu fileMenu = new JMenu("File");
-        fileMenu.add(new JMenuItem("Export World..."));
+    
+        JMenuItem exportWorldOption = new JMenuItem("Export World...");
+        exportWorldOption.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                FileDialog savePrompt = new FileDialog(
+                        new JFrame(), "Export World", FileDialog.SAVE);
+                savePrompt.setFile("MyWorld.dat");
+                savePrompt.setDirectory(System.getProperty("user.dir"));
+                savePrompt.setVisible(true);
+
+                String fileName = savePrompt.getFile();
+                if(fileName != null)
+                {
+                    String filePath = savePrompt.getDirectory() + fileName;
+                    try {
+                        File worldFile = new File(filePath);
+
+                        if(filePath.endsWith(".dat"))
+                        {}
+                            //raytracer.exportWorld(worldFile);
+                        else
+                            throw new Exception("Incorrect file extension!");
+                    }
+                    catch(IOException ex)
+                    {
+                        JOptionPane.showMessageDialog(new JFrame(), 
+                                "File could not be saved!",
+                                "ERROR", JOptionPane.ERROR_MESSAGE);
+                    }
+                    catch(Exception ex)
+                    {
+                        JOptionPane.showMessageDialog(new JFrame(), 
+                                ex.getCause(), "ERROR",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            }
+        });
+
+        fileMenu.add(exportWorldOption);
+
         fileMenu.add(new JMenuItem("Import World..."));
 
         JMenuItem saveRenderOption = new JMenuItem("Save Render...");
@@ -269,7 +410,7 @@ class ImagePanel extends JPanel
     }
 }
 
-class CameraTab extends JPanel
+class CameraPanel extends JPanel
 {
     private Camera cam;
     private JTextField[] lookAt;
@@ -278,7 +419,7 @@ class CameraTab extends JPanel
     private JTextField verticalFOV;
     private JTextField lensAperture;
 
-    public CameraTab(Camera cam)
+    public CameraPanel(Camera cam)
     {
         super(new GridBagLayout());
         this.cam = cam;
@@ -381,7 +522,7 @@ class NumberListener implements KeyListener
 //TODO:
 //  - Get Tree working
 //      - Selections generate proper properties pane & edits reflect in world
-//      - Addition and deletion change tree
+//      - Addition change tree
 //  - Export/Import working
 //      - Create text file with list of objects and properties
 //      - Read text file, clear hitable list & other lists, populate tree and

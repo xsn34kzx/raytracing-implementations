@@ -16,6 +16,21 @@ public class HitableList implements Hitable
         this.list.add(object);
     }
 
+    public int getSize()
+    {
+        return this.list.size();
+    }
+
+    public Hitable getHitable(int i)
+    {
+        return this.list.get(i);
+    }
+
+    public void removeHitable(int i)
+    {
+        this.list.remove(i);
+    }
+
     @Override
     public boolean hit(Ray r, double tMin, double tMax, HitRecord rec)
     {

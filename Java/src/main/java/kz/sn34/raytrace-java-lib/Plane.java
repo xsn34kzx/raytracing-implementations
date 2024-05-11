@@ -5,27 +5,15 @@ public class Plane implements Hitable
     private Vector3 center;
     private Vector3 coefficients;
     private double constant;
+    private Material mat;
 
-    public Plane()
-    {
-        this(0);
-    }
-
-    public Plane(double constant)
-    {
-        this(new Vector3(1), constant);
-    }
-
-    public Plane(Vector3 coefficients, double constant)
-    {
-        this(new Vector3(), coefficients, constant);
-    }
-
-    public Plane(Vector3 center, Vector3 coefficients, double constant)
+    public Plane(Vector3 center, Vector3 coefficients, double constant,
+            Material mat)
     {
         this.center = center;
         this.coefficients = coefficients;
         this.constant = constant;
+
     }
 
     @Override

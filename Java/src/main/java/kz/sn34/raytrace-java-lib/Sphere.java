@@ -6,11 +6,6 @@ public class Sphere implements Hitable
     private double radius;
     private Material mat;
 
-    public Sphere(double radius, Material mat)
-    {
-        this(new Vector3(), radius, mat);
-    }
-
     public Sphere(Vector3 center, double radius, Material mat)
     {
         this.radius = radius;

@@ -10,8 +10,7 @@ import java.util.ArrayList;
 public class Raytracer 
 {
     private HitableList world;
-    private ArrayList<String> objNames;
-    private ArrayList<String> matNames;
+    private ArrayList<WorldEntry> entries; 
     private Camera cam;
 
     private int width;
@@ -33,8 +32,6 @@ public class Raytracer
         this.samples = 25;
         this.depth = 50;
 
-        this.refreshDimensionDependents();
-
         Vector3 lookFrom = new Vector3(-2, 2, 5);
         Vector3 lookAt = new Vector3(0, 2, -1);
 
@@ -42,19 +39,40 @@ public class Raytracer
                 45, (double) width / height, 0, 
                 (lookFrom.subtract(lookAt).getMagnitude()));
 
+        // Default World
         this.world = new HitableList();
+        this.entries = new ArrayList<WorldEntry>();
+
         this.world.add(new Sphere(new Vector3(1, 2.5, -1.5), 0.5,
                     new Lambertian(new Vector3(0.1, 0.2, 0.5))));
+        this.entries.add(new WorldEntry(false, 0, 
+                    EntryType.SPHERE, this.world.getHitable(0)));
+        this.entries.add(new WorldEntry(true, 0,
+                    EntryType.LAMBERTIAN, this.world.getHitable(0)));
+
         this.world.add(new Spheroid(new Vector3(0.25, 1, 1),
                     new Vector3(0, 1, -1), new Lambertian(new Vector3(0.8, 0, 0.8))));
+        this.entries.add(new WorldEntry(false, 1, 
+                    EntryType.SPHEROID, this.world.getHitable(1)));
+        this.entries.add(new WorldEntry(true, 1,
+                    EntryType.LAMBERTIAN, this.world.getHitable(1)));
 
         this.world.add(new Sphere(new Vector3(0, -100.5, -1), 100,
                     new Lambertian(new Vector3(0.8, 0.8, 0))));
+        this.entries.add(new WorldEntry(false, 2, 
+                    EntryType.SPHERE, this.world.getHitable(2)));
+        this.entries.add(new WorldEntry(true, 2,
+                    EntryType.LAMBERTIAN, this.world.getHitable(2)));
     }
 
     public Camera getCamera()
     {
         return this.cam;
+    }
+
+    public ArrayList<WorldEntry> getWorldEntries()
+    {
+        return this.entries;
     }
 
     public double getSubWidth()
@@ -83,11 +101,33 @@ public class Raytracer
         this.subHeight = pixelHeight / (this.samples - 1);
     }
 
+    public void deleteWorldEntry(WorldEntry parentEntry)
+    {
+        int index = parentEntry.getIndex();
+        int entryIndex = 2 * index;
+
+        this.entries.remove(entryIndex);
+        this.entries.remove(entryIndex);
+
+        if(index + 1 != this.world.getSize())
+        {
+            int j = index;
+            for(int i = entryIndex; i + 1 < this.entries.size(); i += 2)
+            {
+                this.entries.get(i).setIndex(j);
+                this.entries.get(i + 1).setIndex(j++);
+            }
+        }
+
+        this.world.removeHitable(index);
+    }
+
     public BufferedImage render()
     {
         BufferedImage img = new BufferedImage(this.width, this.height,
                 BufferedImage.TYPE_INT_RGB);
         
+        this.refreshDimensionDependents();
         SampleThread.setRaytracer(this);
 
         double effHeight = height - 1;
