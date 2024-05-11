@@ -1,7 +1,11 @@
 package kz.sn34.raytrace_java_lib;
 
-public class Lambertian extends Material
+import java.io.Serializable;
+
+public class Lambertian extends Material implements Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     public Lambertian(Vector3 albedo)
     {
         this.albedo = albedo;

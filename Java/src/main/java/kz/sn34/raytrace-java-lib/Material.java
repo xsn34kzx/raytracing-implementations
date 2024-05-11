@@ -1,7 +1,11 @@
 package kz.sn34.raytrace_java_lib;
 
-public abstract class Material
+import java.io.Serializable;
+
+public abstract class Material implements Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     protected Vector3 albedo;
 
     public Vector3 getAlbedo()

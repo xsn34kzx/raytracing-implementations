@@ -49,6 +49,8 @@ public class App
     public static void main(String[] args)
     {
         App app = new App();
+
+        System.setProperty("sun.io.serialization.extendedDebugInfo", "true");
         // Tree function to init tree by filling string array, populating
         // children based on those
         //
@@ -252,6 +254,7 @@ public class App
         JMenuBar mainMenu = new JMenuBar();
         JMenu fileMenu = new JMenu("File");
     
+        // TODO: Disable export option if world is empty
         JMenuItem exportWorldOption = new JMenuItem("Export World...");
         exportWorldOption.addActionListener(new ActionListener() {
             @Override
@@ -271,8 +274,7 @@ public class App
                         File worldFile = new File(filePath);
 
                         if(filePath.endsWith(".dat"))
-                        {}
-                            //raytracer.exportWorld(worldFile);
+                            raytracer.exportWorld(worldFile);
                         else
                             throw new Exception("Incorrect file extension!");
                     }
@@ -281,6 +283,8 @@ public class App
                         JOptionPane.showMessageDialog(new JFrame(), 
                                 "File could not be saved!",
                                 "ERROR", JOptionPane.ERROR_MESSAGE);
+                        ex.printStackTrace();
+                        System.out.println(ex.getCause());
                     }
                     catch(Exception ex)
                     {
@@ -294,7 +298,51 @@ public class App
 
         fileMenu.add(exportWorldOption);
 
-        fileMenu.add(new JMenuItem("Import World..."));
+        JMenuItem importWorldOption = new JMenuItem("Import World...");
+        importWorldOption.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                FileDialog loadPrompt = new FileDialog(
+                        new JFrame(), "Import World", FileDialog.LOAD);
+                loadPrompt.setFile("*.dat");
+                loadPrompt.setDirectory(System.getProperty("user.dir"));
+                loadPrompt.setVisible(true);
+
+                String fileName = loadPrompt.getFile();
+                if(fileName != null)
+                {
+                    String filePath = loadPrompt.getDirectory() + fileName;
+                    try {
+                        File worldFile = new File(filePath);
+
+                        if(filePath.endsWith(".dat"))
+                        {
+                            raytracer.importWorld(worldFile);
+                            refreshSceneTree();
+                        }
+                        else
+                            throw new Exception("Incorrect file extension!");
+                    }
+                    catch(IOException ex)
+                    {
+                        JOptionPane.showMessageDialog(new JFrame(), 
+                                "File could not be loaded!",
+                                "ERROR", JOptionPane.ERROR_MESSAGE);
+                        ex.printStackTrace();
+                        System.out.println(ex.getCause());
+                    }
+                    catch(Exception ex)
+                    {
+                        JOptionPane.showMessageDialog(new JFrame(), 
+                                ex.getCause(), "ERROR",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            }
+        });
+
+        fileMenu.add(importWorldOption);
 
         JMenuItem saveRenderOption = new JMenuItem("Save Render...");
         saveRenderOption.setEnabled(false);
@@ -521,12 +569,7 @@ class NumberListener implements KeyListener
 
 //TODO:
 //  - Get Tree working
-//      - Selections generate proper properties pane & edits reflect in world
 //      - Addition change tree
-//  - Export/Import working
-//      - Create text file with list of objects and properties
-//      - Read text file, clear hitable list & other lists, populate tree and
-//      hitable list
 //  - Add & delete objects buttons
 //      - Pop up menu with combo boxes and confirmation button
 //  - Change World & Camera setings

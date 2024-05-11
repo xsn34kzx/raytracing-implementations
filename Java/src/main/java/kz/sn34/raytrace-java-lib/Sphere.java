@@ -1,7 +1,11 @@
 package kz.sn34.raytrace_java_lib;
 
-public class Sphere implements Hitable
+import java.io.Serializable;
+
+public class Sphere implements Hitable, Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     private Vector3 center;
     private double radius;
     private Material mat;

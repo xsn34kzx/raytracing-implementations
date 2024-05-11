@@ -1,9 +1,12 @@
 package kz.sn34.raytrace_java_lib;
 
 import java.util.Random;
+import java.io.Serializable;
 
-public class Vector3
+public class Vector3 implements Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     private double[] vec;
 
     public Vector3()

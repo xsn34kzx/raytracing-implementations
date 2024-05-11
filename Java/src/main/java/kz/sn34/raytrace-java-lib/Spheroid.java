@@ -1,7 +1,11 @@
 package kz.sn34.raytrace_java_lib;
 
-public class Spheroid extends Sphere
+import java.io.Serializable;
+
+public class Spheroid extends Sphere implements Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     private Vector3 coefficients;
 
     public Spheroid(Vector3 coefficients, Vector3 center, Material mat)

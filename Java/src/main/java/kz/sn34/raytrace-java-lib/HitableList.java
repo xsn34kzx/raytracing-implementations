@@ -1,9 +1,12 @@
 package kz.sn34.raytrace_java_lib;
 
 import java.util.ArrayList;
+import java.io.Serializable;
 
-public class HitableList implements Hitable
+public class HitableList implements Hitable, Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     private ArrayList<Hitable> list;
 
     public HitableList()

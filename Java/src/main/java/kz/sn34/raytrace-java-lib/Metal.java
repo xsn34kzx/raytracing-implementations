@@ -1,6 +1,8 @@
 package kz.sn34.raytrace_java_lib;
 
-public class Metal extends Material
+import java.io.Serializable;
+
+public class Metal extends Material implements Serializable
 {
     private double fuzz;
 

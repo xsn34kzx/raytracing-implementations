@@ -7,7 +7,7 @@ import javax.imageio.*;
 import java.util.ArrayList;
 
 
-public class Raytracer 
+public class Raytracer
 {
     private HitableList world;
     private ArrayList<WorldEntry> entries; 
@@ -122,6 +122,30 @@ public class Raytracer
         this.world.removeHitable(index);
     }
 
+    public void exportWorld(File file) throws IOException
+    {
+        FileOutputStream exportStream = new FileOutputStream(file);
+        ObjectOutputStream objectWriter = new ObjectOutputStream(exportStream);
+
+        objectWriter.writeObject(new WorldSnapshot(this.world, this.entries));
+
+        objectWriter.close();
+        exportStream.close();
+    }
+
+    public void importWorld(File file) throws IOException, ClassNotFoundException
+    {
+        FileInputStream importStream = new FileInputStream(file);
+        ObjectInputStream objectReader = new ObjectInputStream(importStream);
+
+        WorldSnapshot snapshot = (WorldSnapshot) objectReader.readObject();
+        objectReader.close();
+        importStream.close();
+
+        this.entries = snapshot.getWorldEntries();
+        this.world = snapshot.getWorld();
+    }
+
     public BufferedImage render()
     {
         BufferedImage img = new BufferedImage(this.width, this.height,
@@ -213,16 +237,8 @@ public class Raytracer
 
     public BufferedImage quickRender()
     {
-        String testPath = "./img/appQuickTest.png";
-
         BufferedImage img = new BufferedImage(this.width, this.height,
                 BufferedImage.TYPE_INT_RGB);
-
-        File outputFolder = new File("./img");
-        if(!outputFolder.exists())
-            outputFolder.mkdir();
-
-        File pngFile = new File(testPath);
 
         double effHeight = height - 1;
         double effWidth = width - 1;
@@ -246,8 +262,6 @@ public class Raytracer
                 img.setRGB((int) col, (int) row, pixel.getRGBValue());
             }
         }
-
-        //ImageIO.write(img, "PNG", pngFile);
 
         return img;
     }
@@ -366,5 +380,29 @@ class SampleThread extends Thread
                 }
             }
         }
+    }
+}
+
+class WorldSnapshot implements Serializable
+{
+    private static final long serialVersionUID = 1L;
+
+    private HitableList world;
+    private ArrayList<WorldEntry> entries;
+
+    public WorldSnapshot(HitableList world, ArrayList<WorldEntry> entries)
+    {
+        this.world = world;
+        this.entries = entries;
+    }
+
+    public ArrayList<WorldEntry> getWorldEntries()
+    {
+        return this.entries;
+    }
+
+    public HitableList getWorld()
+    {
+        return this.world;
     }
 }
