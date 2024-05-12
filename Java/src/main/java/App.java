@@ -9,10 +9,9 @@ import javax.swing.text.*;
 import java.awt.image.*;
 import java.io.*;
 import javax.imageio.*;
+import java.text.*;
 
-import kz.sn34.raytrace_java_lib.Raytracer;
-import kz.sn34.raytrace_java_lib.Camera;
-import kz.sn34.raytrace_java_lib.WorldEntry;
+import kz.sn34.raytrace_java_lib.*;
 
 public class App
 {
@@ -50,37 +49,40 @@ public class App
     {
         App app = new App();
 
-        System.setProperty("sun.io.serialization.extendedDebugInfo", "true");
-        // Tree function to init tree by filling string array, populating
-        // children based on those
-        //
-        // Delete and add methods will refresh tree
-        //
-        // import world will completely clear children, populate all arrays, and
-        // and then refresh
-
-        // Tree Exploration
-        app.refreshSceneTree();
-        JPanel prop = new JPanel();
-        CameraPanel camTab = new CameraPanel(app.raytracer.getCamera());
-
-        JButton addBtn = new JButton("+");
-        JButton subtractBtn = new JButton("-");
-        
         // Screen setup
         JFrame mainWindow = new JFrame("Raytracing Implementations - Java");
         JPanel mainPanel = new JPanel(new GridBagLayout());
         mainWindow.setSize(1000, 1000);
+        
+        // Initializing all components in order of apperance
+        CameraPanel camTab = new CameraPanel(app.raytracer.getCamera(), 
+                app.raytracer);
 
-        // Info Panel
-        JButton confirmBtn = new JButton("CONFIRM");
+        JPanel infoPanel = new JPanel(new GridBagLayout());
+
+
+        app.refreshSceneTree();
+        JTree sample = new JTree(app.tree);
+        JScrollPane worldPane = new JScrollPane(sample);
+
+        JButton subtractBtn = new JButton("-");
+        JButton addBtn = new JButton("+");
+        
+        JPanel prop = new JPanel();
+
         JButton cancelBtn = new JButton("CANCEL");
+        JButton confirmBtn = new JButton("CONFIRM");
 
+        // Constraints objects
+        GridBagConstraints c = new GridBagConstraints();
+        GridBagConstraints infoC = new GridBagConstraints();
+        GridBagConstraints infoLabelConstraints = new GridBagConstraints();
+                
+        
+        // Component setup and arragement
         confirmBtn.setEnabled(false);
         cancelBtn.setEnabled(false);
                 
-        JPanel infoPanel = new JPanel(new GridBagLayout());
-        GridBagConstraints c = new GridBagConstraints();
 
         c.gridwidth = GridBagConstraints.RELATIVE;
         c.weightx = 0.85;
@@ -92,9 +94,7 @@ public class App
         c.weightx = 0.15;
         mainPanel.add(infoPanel, c);
 
-        GridBagConstraints infoC = new GridBagConstraints();
 
-        GridBagConstraints infoLabelConstraints = new GridBagConstraints();
         infoLabelConstraints.gridwidth = GridBagConstraints.REMAINDER;
         infoPanel.add(new JLabel("Scene Editor"), infoLabelConstraints);
 
@@ -103,7 +103,6 @@ public class App
         infoC.weightx = 1;
         infoC.weighty = 1;
         
-        JTree sample = new JTree(app.tree);
         sample.addTreeSelectionListener(new TreeSelectionListener() {
             @Override
             public void valueChanged(TreeSelectionEvent e)
@@ -122,6 +121,7 @@ public class App
                     if(curNode.toString().equals("CAMERA"))
                     {
                         prop.add(camTab);
+                        camTab.populateFields();
                     }
                     else if(curNode.toString().equals("WORLD"))
                     {
@@ -141,6 +141,7 @@ public class App
                 else
                     app.propertiesTag.setText("Properties");
 
+                //TODO: Remove
                 System.out.println(curNode);
             }
         });
@@ -170,7 +171,6 @@ public class App
             }
         });
 
-        JScrollPane worldPane = new JScrollPane(sample);
         sample.setRootVisible(false);
 
         cancelBtn.addActionListener(new ActionListener() {
@@ -181,6 +181,37 @@ public class App
 
                 confirmBtn.setEnabled(false);
                 cancelBtn.setEnabled(false);
+            }
+        });
+
+        confirmBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                DefaultMutableTreeNode curNode = 
+                    (DefaultMutableTreeNode) sample.getLastSelectedPathComponent();
+
+                if(curNode != null)
+                {
+                    try { 
+                        if(curNode.toString().equals("CAMERA"))
+                        {
+                            camTab.applyFields();
+                        }
+                        else if(curNode.toString().equals("WORLD"))
+                        {
+                        }
+                        else
+                        {
+                        }
+
+                    }
+                    catch(NumberFormatException ex)
+                    {}
+                }
+                else
+                    app.propertiesTag.setText("Properties");
+
             }
         });
 
@@ -241,7 +272,6 @@ public class App
                     parent = curNode;
                     this.worldNode.add(curNode);
                 }
-
             }
         }
 
@@ -386,7 +416,6 @@ public class App
             }
         });
 
-        //
         fileMenu.add(saveRenderOption);
 
         JMenu renderMenu = new JMenu("Render");
@@ -429,142 +458,6 @@ public class App
 
         frame.setJMenuBar(mainMenu);
     }
-
-    private void initLeftPanel()
-    {}
-}
-
-class ImagePanel extends JPanel
-{
-    private Image img;
-
-    public ImagePanel()
-    {
-        super();
-    }
-
-    public void setImage(Image img)
-    {
-        this.img = img;
-    }
-
-    @Override
-    public void paintComponent(Graphics g)
-    {
-        super.paintComponent(g);
-        g.setColor(Color.WHITE);
-        g.fillRect(0, 0, this.getSize().width, this.getSize().height);
-        g.drawImage(this.img, 0, 0, null);
-    }
-}
-
-class CameraPanel extends JPanel
-{
-    private Camera cam;
-    private JTextField[] lookAt;
-    private JTextField[] lookFrom;
-    private JTextField[] camUp;
-    private JTextField verticalFOV;
-    private JTextField lensAperture;
-
-    public CameraPanel(Camera cam)
-    {
-        super(new GridBagLayout());
-        this.cam = cam;
-        GridBagConstraints c = new GridBagConstraints();
-        c.gridwidth = GridBagConstraints.REMAINDER;
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.weightx = 1;
-
-        JPanel lookAtPanel = new JPanel(new GridBagLayout());
-
-        lookAt = new JTextField[3];
-        lookFrom = new JTextField[3];
-        camUp = new JTextField[3];
-        for(int i = 0; i < lookAt.length; i++)
-        {
-            lookAt[i] = new JTextField();
-            lookFrom[i] = new JTextField();
-            camUp[i] = new JTextField();
-        }
-
-        verticalFOV = new JTextField();
-        lensAperture = new JTextField();
-
-        initTextFields(lookAtPanel, "Look At - (X, Y, Z)", lookAt);
-        initTextFields(lookAtPanel, "Look From - (X, Y, Z)", lookFrom);
-        initTextFields(lookAtPanel, "Cam Up - (X, Y, Z)", camUp);
-
-        GridBagConstraints lookAtC = new GridBagConstraints();
-        lookAtC.weightx = 0;
-        lookAtC.gridwidth = GridBagConstraints.REMAINDER;
-        lookAtPanel.add(new JLabel("Vertical Field of Vision (FOV)"), lookAtC);
-
-        lookAtC.weightx = 1;
-        lookAtC.fill = GridBagConstraints.HORIZONTAL;
-        lookAtPanel.add(verticalFOV, lookAtC);
-
-
-
-        this.add(lookAtPanel);
-    }
-
-    public void populateFields()
-    {
-
-    }
-
-    public void initTextFields(JPanel parent, String title, JTextField[] fieldList)
-    {
-        GridBagConstraints lookAtC = new GridBagConstraints();
-        lookAtC.weightx = 0;
-        lookAtC.gridwidth = GridBagConstraints.REMAINDER;
-        parent.add(new JLabel(title), lookAtC);
-
-        lookAtC.weightx = 1;
-        lookAtC.fill = GridBagConstraints.HORIZONTAL;
-        for(int i = 0; i < fieldList.length; i++)
-        {
-            fieldList[i].addKeyListener(new NumberListener());
-            parent.add(fieldList[i], lookAtC);
-        }
-    }
-}
-
-class NumberListener implements KeyListener
-{
-    public NumberListener()
-    {}
-
-    @Override
-    public void keyTyped(KeyEvent e)
-    {
-        JTextField source = (JTextField) e.getSource();
-        String sourceText = source.getText();
-        char curChar = e.getKeyChar();
-
-        if(curChar == '-')
-        {
-            if(!sourceText.startsWith("-"))
-                source.setText("-" + sourceText);
-            e.consume();
-        }
-        else if(curChar == '.')
-        {
-            if(sourceText.contains("."))
-                e.consume();
-        }
-        else if(!Character.isDigit(curChar))
-            e.consume();
-    }
-
-    @Override
-    public void keyReleased(KeyEvent e)
-    {}
-
-    @Override
-    public void keyPressed(KeyEvent e)
-    {}
 }
 
 //TODO:

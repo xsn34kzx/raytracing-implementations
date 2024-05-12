@@ -75,6 +75,16 @@ public class Raytracer
         return this.entries;
     }
 
+    public int getWidth()
+    {
+        return this.width;
+    }
+
+    public int getHeight()
+    {
+        return this.height;
+    }
+
     public double getSubWidth()
     {
         return this.subWidth;
@@ -88,6 +98,21 @@ public class Raytracer
     public int getSamples()
     {
         return this.samples;
+    }
+
+    public int getDepth()
+    {
+        return this.depth;
+    }
+
+    public void setWidth(int width)
+    {
+        this.width = width;
+    }
+
+    public void setHeight(int height)
+    {
+        this.height = height;
     }
 
     public void refreshDimensionDependents()
