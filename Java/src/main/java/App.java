@@ -16,7 +16,6 @@ import kz.sn34.raytrace_java_lib.*;
 public class App
 {
     private JLabel propertiesTag;
-
     private JScrollPane properties;
     private JPanel objProperties;
 
@@ -36,6 +35,7 @@ public class App
 
         this.propertiesTag = new JLabel("Properties"); 
         this.properties = new JScrollPane();
+        this.objProperties = new JPanel();
         this.root = new DefaultMutableTreeNode();
         this.tree = new DefaultTreeModel(root);
 
@@ -61,16 +61,13 @@ public class App
 
         JPanel infoPanel = new JPanel(new GridBagLayout());
 
-
         app.refreshSceneTree();
-        JTree sample = new JTree(app.tree);
-        JScrollPane worldPane = new JScrollPane(sample);
+        JTree guiTree = new JTree(app.tree);
+        JScrollPane worldPane = new JScrollPane(guiTree);
 
         JButton subtractBtn = new JButton("-");
         JButton addBtn = new JButton("+");
         
-        JPanel prop = new JPanel();
-
         JButton cancelBtn = new JButton("CANCEL");
         JButton confirmBtn = new JButton("CONFIRM");
 
@@ -78,12 +75,10 @@ public class App
         GridBagConstraints c = new GridBagConstraints();
         GridBagConstraints infoC = new GridBagConstraints();
         GridBagConstraints infoLabelConstraints = new GridBagConstraints();
-                
         
         // Component setup and arragement
         confirmBtn.setEnabled(false);
         cancelBtn.setEnabled(false);
-                
 
         c.gridwidth = GridBagConstraints.RELATIVE;
         c.weightx = 0.85;
@@ -95,7 +90,6 @@ public class App
         c.weightx = 0.15;
         mainPanel.add(infoPanel, c);
 
-
         infoLabelConstraints.gridwidth = GridBagConstraints.REMAINDER;
         infoPanel.add(new JLabel("Scene Editor"), infoLabelConstraints);
 
@@ -104,16 +98,17 @@ public class App
         infoC.weightx = 1;
         infoC.weighty = 1;
         
-        sample.addTreeSelectionListener(new TreeSelectionListener() {
+        guiTree.addTreeSelectionListener(new TreeSelectionListener() {
             @Override
             public void valueChanged(TreeSelectionEvent e)
             {
                 DefaultMutableTreeNode curNode = 
-                    (DefaultMutableTreeNode) sample.getLastSelectedPathComponent();
+                    (DefaultMutableTreeNode) guiTree.getLastSelectedPathComponent();
 
-                prop.removeAll();
-                prop.revalidate();
-                prop.repaint();
+
+                app.objProperties.removeAll();
+                app.objProperties.revalidate();
+                app.objProperties.repaint();
 
                 subtractBtn.setEnabled(false);
 
@@ -121,22 +116,30 @@ public class App
                 {
                     if(curNode.toString().equals("CAMERA"))
                     {
-                        prop.add(camTab);
+                        app.objProperties.add(camTab);
                         camTab.populateFields();
                     }
                     else if(curNode.toString().equals("WORLD"))
                     {
-                        prop.add(worldTab);
+                        app.objProperties.add(worldTab);
                         worldTab.populateFields();
                     }
                     else
                     {
+                        WorldEntry curEntry = (WorldEntry) curNode.getUserObject();
+                        if(!curEntry.isChild())
+                        {
+                            HitablePanel objTab = new HitablePanel(curEntry);
+                            app.objProperties.add(objTab);
+                            objTab.populateFields();
+                        }
+
                         subtractBtn.setEnabled(true);
                     }
 
                     app.propertiesTag.setText(curNode + " - Properties");
-                    prop.revalidate();
-                    prop.repaint();
+                    app.objProperties.revalidate();
+                    app.objProperties.repaint();
 
                     confirmBtn.setEnabled(true);
                     cancelBtn.setEnabled(true);
@@ -151,9 +154,7 @@ public class App
             public void actionPerformed(ActionEvent e)
             {
                 DefaultMutableTreeNode curNode = 
-                    (DefaultMutableTreeNode) sample.getLastSelectedPathComponent();
-
-                System.out.println(curNode);
+                    (DefaultMutableTreeNode) guiTree.getLastSelectedPathComponent();
 
                 WorldEntry curEntry = (WorldEntry) curNode.getUserObject();
 
@@ -171,13 +172,85 @@ public class App
             }
         });
 
-        sample.setRootVisible(false);
+        
+        addBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                JFrame addFrame = new JFrame();
+                JPanel addPanel = new JPanel(new GridBagLayout());
+                addFrame.setDefaultCloseOperation(
+                        WindowConstants.DISPOSE_ON_CLOSE);
+
+                AddObjectPanel objPanel = new AddObjectPanel();
+
+                GridBagConstraints titleConstraints = new GridBagConstraints();
+                titleConstraints.weightx = 0;
+                titleConstraints.gridwidth = GridBagConstraints.REMAINDER;
+
+                GridBagConstraints fieldConstraints = new GridBagConstraints();
+                fieldConstraints.weightx = 1;
+                fieldConstraints.fill = GridBagConstraints.HORIZONTAL;
+                fieldConstraints.gridwidth = GridBagConstraints.REMAINDER;
+
+                addPanel.add(
+                        new JLabel("Object Type"), titleConstraints);
+
+                JComboBox objectChoice = new JComboBox();
+                objectChoice.addItem(EntryType.SPHERE);
+                objectChoice.addItem(EntryType.SPHEROID);
+                addPanel.add(objectChoice, fieldConstraints);
+
+                JButton confirmAddBtn = new JButton("CONFIRM");
+
+                objectChoice.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e)
+                    {
+                        EntryType typeSelected = 
+                            (EntryType) objectChoice.getSelectedItem();
+
+                        objPanel.init(typeSelected);
+                        addPanel.add(objPanel, fieldConstraints);
+                        addPanel.add(confirmAddBtn, fieldConstraints);
+                        addPanel.revalidate();
+                        addPanel.repaint();
+                    }
+                });
+
+                confirmAddBtn.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e)
+                    {
+                        EntryType typeSelected = 
+                            (EntryType) objectChoice.getSelectedItem();
+
+                        Hitable newObject = objPanel.createObject(typeSelected);
+                        if(newObject != null)
+                        {
+                            app.raytracer.addWorldObject(typeSelected,
+                                    newObject);
+
+                            app.refreshSceneTree();
+                        }
+                    }
+                });
+
+
+                JDialog addDialog = new JDialog(addFrame, "Add Hitable Object", true);
+                addDialog.setSize(250, 250);
+                addDialog.add(addPanel);
+                addDialog.setVisible(true);
+            }       
+        });
+
+        guiTree.setRootVisible(false);
 
         cancelBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                sample.clearSelection();
+                guiTree.clearSelection();
 
                 confirmBtn.setEnabled(false);
                 cancelBtn.setEnabled(false);
@@ -189,23 +262,21 @@ public class App
             public void actionPerformed(ActionEvent e)
             {
                 DefaultMutableTreeNode curNode = 
-                    (DefaultMutableTreeNode) sample.getLastSelectedPathComponent();
+                    (DefaultMutableTreeNode) guiTree.getLastSelectedPathComponent();
 
                 if(curNode != null)
                 {
                     try { 
                         if(curNode.toString().equals("CAMERA"))
-                        {
                             camTab.applyFields();
-                        }
                         else if(curNode.toString().equals("WORLD"))
-                        {
                             worldTab.applyFields();
-                        }
                         else
                         {
+                            HitablePanel curPanel = 
+                                (HitablePanel) app.objProperties.getComponents()[0];
+                            curPanel.applyFields();
                         }
-
                     }
                     catch(NumberFormatException ex)
                     {}
@@ -228,14 +299,10 @@ public class App
         infoBtnConstraints.gridwidth = GridBagConstraints.REMAINDER;
         infoPanel.add(addBtn, infoBtnConstraints);
 
-        // Settings pane
-        //JTabbedPane settingsTabs = new JTabbedPane();
         infoPanel.add(app.propertiesTag, infoLabelConstraints);
         
-        app.properties.setViewportView(prop);
+        app.properties.setViewportView(app.objProperties);
         app.properties.revalidate();
-        //settingsTabs.addTab("Object", camTab);
-        //settingsTabs.addTab("Test2", new JPanel());
         infoPanel.add(app.properties, infoC);
 
         infoBtnConstraints.gridwidth = GridBagConstraints.RELATIVE;
@@ -285,7 +352,6 @@ public class App
         JMenuBar mainMenu = new JMenuBar();
         JMenu fileMenu = new JMenu("File");
     
-        // TODO: Disable export option if world is empty
         JMenuItem exportWorldOption = new JMenuItem("Export World...");
         exportWorldOption.addActionListener(new ActionListener() {
             @Override
@@ -460,10 +526,3 @@ public class App
         frame.setJMenuBar(mainMenu);
     }
 }
-
-//TODO:
-//  - Get Tree working
-//      - Addition change tree
-//  - Add & delete objects buttons
-//      - Pop up menu with combo boxes and confirmation button
-//  - Change World & Camera setings

@@ -29,6 +29,7 @@ public class Raytracer
 
     public Raytracer()
     {
+        // Default raytracing settings
         this.width = 200;
         this.height = 200;
 
@@ -160,6 +161,16 @@ public class Raytracer
         double effHeight = this.height - 1;
         double pixelHeight = 1 / effHeight;
         this.subHeight = pixelHeight / (this.samples - 1);
+    }
+
+    public void addWorldObject(EntryType type, Hitable object)
+    {
+        int index = this.world.getSize();
+        this.world.add(object);
+        this.entries.add(new WorldEntry(false, index, 
+                    type, object));
+        this.entries.add(new WorldEntry(true, index,
+                    EntryType.LAMBERTIAN, object));
     }
 
     public void deleteWorldEntry(WorldEntry parentEntry)

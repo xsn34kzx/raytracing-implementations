@@ -119,8 +119,10 @@ public class CameraPanel extends JPanel
 
     public void applyFields() throws NumberFormatException
     {
-        int width = Integer.parseInt(this.width.getText());
-        int height = Integer.parseInt(this.height.getText());
+        int width = Math.min(Integer.parseInt(this.width.getText()), 
+                super.getSize().width);
+        int height = Math.min(Integer.parseInt(this.height.getText()),
+                super.getSize().height);
 
         double lensAperture = Double.parseDouble(this.lensAperture.getText());
         double verticalFOV = Double.parseDouble(this.verticalFOV.getText());

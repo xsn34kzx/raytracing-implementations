@@ -10,9 +10,19 @@ public class Spheroid extends Sphere implements Serializable
 
     public Spheroid(Vector3 coefficients, Vector3 center, Material mat)
     {
-        // TODO: Change Sphere & Spheroid class relationship
         super(center, 1, mat);
         this.coefficients = coefficients;
+    }
+
+    public Vector3 getCoefficients()
+    {
+        return this.coefficients;
+    }
+
+    public void copy(Spheroid spheroid)
+    {
+        super.copy(spheroid);
+        this.coefficients = spheroid.coefficients;
     }
 
     @Override

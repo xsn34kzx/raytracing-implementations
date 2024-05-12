@@ -34,6 +34,16 @@ public class WorldEntry implements Serializable
         return this.i;
     }
 
+    public EntryType getType()
+    {
+        return this.type;
+    }
+
+    public Hitable getHitable()
+    {
+        return this.obj;
+    }
+
     public void setIndex(int i)
     {
         this.i = i;

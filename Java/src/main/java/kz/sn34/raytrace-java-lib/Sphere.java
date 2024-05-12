@@ -32,6 +32,13 @@ public class Sphere implements Hitable, Serializable
         return this.mat;
     }
 
+    public void copy(Sphere sphere)
+    {
+        this.center = sphere.center;
+        this.radius = sphere.radius;
+        this.mat = sphere.mat;
+    }
+
     @Override
     public boolean hit(Ray r, double tMin, double tMax, HitRecord rec)
     {
