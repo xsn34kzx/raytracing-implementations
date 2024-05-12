@@ -22,6 +22,9 @@ public class Raytracer
     private int depth;
     private int samples;
 
+    private Vector3 startColor;
+    private Vector3 endColor;
+
     //TODO: Background/LERP settings
 
     public Raytracer()
@@ -31,6 +34,9 @@ public class Raytracer
 
         this.samples = 25;
         this.depth = 50;
+
+        this.endColor = new Vector3(1);
+        this.startColor = new Vector3(0.5, 0.7, 1);
 
         Vector3 lookFrom = new Vector3(-2, 2, 5);
         Vector3 lookAt = new Vector3(0, 2, -1);
@@ -105,6 +111,16 @@ public class Raytracer
         return this.depth;
     }
 
+    public Vector3 getStartColor()
+    {
+        return this.startColor;
+    }
+
+    public Vector3 getEndColor()
+    {
+        return this.endColor;
+    }
+
     public void setWidth(int width)
     {
         this.width = width;
@@ -113,6 +129,26 @@ public class Raytracer
     public void setHeight(int height)
     {
         this.height = height;
+    }
+
+    public void setSamples(int samples)
+    {
+        this.samples = samples;
+    }
+
+    public void setDepth(int depth)
+    {
+        this.depth = depth;
+    }
+
+    public void setStartColor(Vector3 startColor)
+    {
+        this.startColor = startColor;
+    }
+
+    public void setEndColor(Vector3 endColor)
+    {
+        this.endColor = endColor;
     }
 
     public void refreshDimensionDependents()
@@ -319,8 +355,7 @@ public class Raytracer
         }
         else
         {
-            Ray colorPercents = new Ray(new Vector3(1),
-                    new Vector3(0.5, 0.7, 1));
+            Ray colorPercents = new Ray(endColor, startColor);
             double t = 0.5 * (r.getDirection().getUnitVector().getY() + 1);
 
             return colorPercents.lerp(t);
@@ -337,8 +372,7 @@ public class Raytracer
         }
         else
         {
-            Ray colorPercents = new Ray(new Vector3(1),
-                    new Vector3(0.5, 0.7, 1));
+            Ray colorPercents = new Ray(endColor, startColor);
             double t = 0.5 * (r.getDirection().getUnitVector().getY() + 1);
 
             return colorPercents.lerp(t);

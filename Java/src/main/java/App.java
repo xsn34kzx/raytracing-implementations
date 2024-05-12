@@ -57,6 +57,7 @@ public class App
         // Initializing all components in order of apperance
         CameraPanel camTab = new CameraPanel(app.raytracer.getCamera(), 
                 app.raytracer);
+        WorldPanel worldTab = new WorldPanel(app.raytracer);
 
         JPanel infoPanel = new JPanel(new GridBagLayout());
 
@@ -125,6 +126,8 @@ public class App
                     }
                     else if(curNode.toString().equals("WORLD"))
                     {
+                        prop.add(worldTab);
+                        worldTab.populateFields();
                     }
                     else
                     {
@@ -140,9 +143,6 @@ public class App
                 }
                 else
                     app.propertiesTag.setText("Properties");
-
-                //TODO: Remove
-                System.out.println(curNode);
             }
         });
 
@@ -200,6 +200,7 @@ public class App
                         }
                         else if(curNode.toString().equals("WORLD"))
                         {
+                            worldTab.applyFields();
                         }
                         else
                         {
