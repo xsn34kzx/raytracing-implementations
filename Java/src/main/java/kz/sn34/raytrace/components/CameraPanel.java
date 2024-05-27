@@ -1,9 +1,18 @@
-package kz.sn34.raytrace_java_lib;
+package kz.sn34.raytrace.components;
 
-import javax.swing.*;
-import java.awt.*;
-import java.text.*;
+import javax.swing.JPanel;
+import javax.swing.JLabel;
+import javax.swing.JTextField;
+import java.awt.GridBagLayout;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
 
+import kz.sn34.raytrace.Camera;
+import kz.sn34.raytrace.Raytracer;
+import kz.sn34.raytrace.util.Vector3;
+import kz.sn34.raytrace.event.NumberListener;
+
+@SuppressWarnings("serial")
 public class CameraPanel extends JPanel
 {
     private Camera cam;

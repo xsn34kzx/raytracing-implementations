@@ -1,7 +1,8 @@
-package kz.sn34.raytrace_java_lib;
+package kz.sn34.raytrace.event;
 
-import java.awt.event.*;
-import javax.swing.*;
+import java.awt.event.KeyListener;
+import java.awt.event.KeyEvent;
+import javax.swing.JTextField;
 
 public class NumberListener implements KeyListener
 {

@@ -1,17 +1,35 @@
-import java.util.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.tree.*;
-import javax.swing.event.*;
-import javax.swing.text.*;
-import java.awt.image.*;
-import java.io.*;
-import javax.imageio.*;
-import java.text.*;
+import java.util.ArrayList;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JLabel;
+import javax.swing.JButton;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JScrollPane;
+import javax.swing.JOptionPane;
+import javax.swing.JDialog;
+import javax.swing.JComboBox;
+import javax.swing.JTree;
+import javax.swing.WindowConstants;
+import java.awt.GridBagLayout;
+import java.awt.GridBagConstraints;
+import java.awt.FileDialog;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.event.TreeSelectionEvent;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import javax.imageio.ImageIO;
 
-import kz.sn34.raytrace_java_lib.*;
+import kz.sn34.raytrace.Raytracer;
+import kz.sn34.raytrace.hitables.Hitable;
+import kz.sn34.raytrace.components.*;
+import kz.sn34.raytrace.components.util.*;
 
 public class App
 {
@@ -168,7 +186,7 @@ public class App
                 addPanel.add(
                         new JLabel("Object Type"), titleConstraints);
 
-                JComboBox objectChoice = new JComboBox();
+                JComboBox<EntryType> objectChoice = new JComboBox<>();
                 objectChoice.addItem(EntryType.SPHERE);
                 objectChoice.addItem(EntryType.SPHEROID);
                 addPanel.add(objectChoice, fieldConstraints);
@@ -207,7 +225,6 @@ public class App
                         }
                     }
                 });
-
 
                 JDialog addDialog = new JDialog(addFrame, "Add Hitable Object",
                         true);

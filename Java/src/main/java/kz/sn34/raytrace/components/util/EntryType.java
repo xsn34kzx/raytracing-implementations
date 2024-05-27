@@ -1,4 +1,4 @@
-package kz.sn34.raytrace_java_lib;
+package kz.sn34.raytrace.components.util;
 
 public enum EntryType
 {

@@ -1,8 +1,10 @@
-package kz.sn34.raytrace_java_lib;
+package kz.sn34.raytrace.components;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JPanel;
+import java.awt.Graphics;
+import java.awt.Image;
 
+@SuppressWarnings("serial")
 public class ImagePanel extends JPanel
 {
     private Image img;

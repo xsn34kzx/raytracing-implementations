@@ -1,6 +1,8 @@
-package kz.sn34.raytrace_java_lib;
+package kz.sn34.raytrace;
 
-import java.util.Random;
+import kz.sn34.raytrace.util.Vector2;
+import kz.sn34.raytrace.util.Vector3;
+import kz.sn34.raytrace.util.Ray;
 
 public class Camera
 {

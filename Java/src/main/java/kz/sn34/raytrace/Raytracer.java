@@ -1,11 +1,22 @@
-package kz.sn34.raytrace_java_lib;
+package kz.sn34.raytrace;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.io.IOException;
 import java.util.Random;
-import java.awt.image.*;
-import javax.imageio.*;
 import java.util.ArrayList;
+import java.awt.image.BufferedImage;
 
+import kz.sn34.raytrace.util.*;
+import kz.sn34.raytrace.hitables.*;
+import kz.sn34.raytrace.hitables.HitableList;
+import kz.sn34.raytrace.hitables.util.HitRecord;
+import kz.sn34.raytrace.materials.*;
+import kz.sn34.raytrace.components.util.*;
 
 public class Raytracer
 {
@@ -24,8 +35,6 @@ public class Raytracer
 
     private Vector3 startColor;
     private Vector3 endColor;
-
-    //TODO: Background/LERP settings
 
     public Raytracer()
     {

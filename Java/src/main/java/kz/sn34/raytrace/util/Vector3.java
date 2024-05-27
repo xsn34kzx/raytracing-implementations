@@ -1,4 +1,4 @@
-package kz.sn34.raytrace_java_lib;
+package kz.sn34.raytrace.util;
 
 import java.util.Random;
 import java.io.Serializable;
@@ -199,7 +199,7 @@ public class Vector3 implements Serializable
         return randVector;
     }
 
-    static boolean isNearZero(Vector3 v)
+    static public boolean isNearZero(Vector3 v)
     {
         double min = 1e-8;
 

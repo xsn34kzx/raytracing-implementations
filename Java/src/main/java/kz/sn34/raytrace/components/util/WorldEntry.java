@@ -1,6 +1,8 @@
-package kz.sn34.raytrace_java_lib;
+package kz.sn34.raytrace.components.util;
 
 import java.io.Serializable;
+
+import kz.sn34.raytrace.hitables.Hitable;
 
 public class WorldEntry implements Serializable
 {

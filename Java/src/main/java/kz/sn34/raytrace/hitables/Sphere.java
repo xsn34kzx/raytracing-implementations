@@ -1,6 +1,11 @@
-package kz.sn34.raytrace_java_lib;
+package kz.sn34.raytrace.hitables;
 
 import java.io.Serializable;
+
+import kz.sn34.raytrace.util.Vector3;
+import kz.sn34.raytrace.util.Ray;
+import kz.sn34.raytrace.hitables.util.HitRecord;
+import kz.sn34.raytrace.materials.Material;
 
 public class Sphere implements Hitable, Serializable
 {

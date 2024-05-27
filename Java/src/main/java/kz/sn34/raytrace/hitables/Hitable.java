@@ -1,6 +1,9 @@
-package kz.sn34.raytrace_java_lib;
+package kz.sn34.raytrace.hitables;
 
-public interface Hitable
+import kz.sn34.raytrace.util.Ray;
+import kz.sn34.raytrace.hitables.util.HitRecord;
+
+public interface Hitable 
 {
     static final double TMAX = Double.MAX_VALUE; 
     static final double TMIN = 1e-3;
