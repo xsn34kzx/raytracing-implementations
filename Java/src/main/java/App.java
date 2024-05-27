@@ -15,8 +15,7 @@ import kz.sn34.raytrace_java_lib.*;
 
 public class App
 {
-    private JLabel propertiesTag;
-    private JScrollPane properties;
+    private JLabel propertiesLabel;
     private JPanel objProperties;
 
     private DefaultTreeModel tree;
@@ -33,35 +32,36 @@ public class App
         this.raytracer = new Raytracer();
         this.imagePanel = new ImagePanel();
 
-        this.propertiesTag = new JLabel("Properties"); 
-        this.properties = new JScrollPane();
+        this.propertiesLabel = new JLabel("Properties"); 
         this.objProperties = new JPanel();
         this.root = new DefaultMutableTreeNode();
         this.tree = new DefaultTreeModel(root);
 
         this.worldNode = new DefaultMutableTreeNode("WORLD");
         this.camNode = new DefaultMutableTreeNode("CAMERA");
-        this.root.add(camNode);
-        this.root.add(worldNode);
+        this.root.add(this.camNode);
+        this.root.add(this.worldNode);
     }
 
     public static void main(String[] args)
     {
         App app = new App();
 
-        // Screen setup
+        // Initialize window and its parameters
         JFrame mainWindow = new JFrame("Raytracing Implementations - Java");
-        JPanel mainPanel = new JPanel(new GridBagLayout());
         mainWindow.setSize(1000, 1000);
-        
+        mainWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
         // Initializing all components in order of apperance
+        JPanel mainPanel = new JPanel(new GridBagLayout());
+
         CameraPanel camTab = new CameraPanel(app.raytracer.getCamera(), 
                 app.raytracer);
         WorldPanel worldTab = new WorldPanel(app.raytracer);
 
         JPanel infoPanel = new JPanel(new GridBagLayout());
+        JScrollPane propertiesPane = new JScrollPane();
 
-        app.refreshSceneTree();
         JTree guiTree = new JTree(app.tree);
         JScrollPane worldPane = new JScrollPane(guiTree);
 
@@ -71,45 +71,17 @@ public class App
         JButton cancelBtn = new JButton("CANCEL");
         JButton confirmBtn = new JButton("CONFIRM");
 
-        // Constraints objects
-        GridBagConstraints c = new GridBagConstraints();
-        GridBagConstraints infoC = new GridBagConstraints();
-        GridBagConstraints infoLabelConstraints = new GridBagConstraints();
-        
-        // Component setup and arragement
-        confirmBtn.setEnabled(false);
-        cancelBtn.setEnabled(false);
-
-        c.gridwidth = GridBagConstraints.RELATIVE;
-        c.weightx = 0.85;
-        c.weighty = 1;
-        c.fill = GridBagConstraints.BOTH;
-        mainPanel.add(app.imagePanel, c);
-
-        c.gridwidth = GridBagConstraints.REMAINDER;
-        c.weightx = 0.15;
-        mainPanel.add(infoPanel, c);
-
-        infoLabelConstraints.gridwidth = GridBagConstraints.REMAINDER;
-        infoPanel.add(new JLabel("Scene Editor"), infoLabelConstraints);
-
-        infoC.gridwidth = GridBagConstraints.REMAINDER;
-        infoC.fill = GridBagConstraints.BOTH;
-        infoC.weightx = 1;
-        infoC.weighty = 1;
-        
+        // Setting up components
+        app.refreshSceneTree();
+        guiTree.setRootVisible(false);
         guiTree.addTreeSelectionListener(new TreeSelectionListener() {
             @Override
             public void valueChanged(TreeSelectionEvent e)
             {
-                DefaultMutableTreeNode curNode = 
-                    (DefaultMutableTreeNode) guiTree.getLastSelectedPathComponent();
-
+                DefaultMutableTreeNode curNode = (DefaultMutableTreeNode) 
+                    guiTree.getLastSelectedPathComponent();
 
                 app.objProperties.removeAll();
-                app.objProperties.revalidate();
-                app.objProperties.repaint();
-
                 subtractBtn.setEnabled(false);
 
                 if(curNode != null)
@@ -126,7 +98,8 @@ public class App
                     }
                     else
                     {
-                        WorldEntry curEntry = (WorldEntry) curNode.getUserObject();
+                        WorldEntry curEntry = (WorldEntry) 
+                            curNode.getUserObject();
                         if(!curEntry.isChild())
                         {
                             HitablePanel objTab = new HitablePanel(curEntry);
@@ -137,7 +110,7 @@ public class App
                         subtractBtn.setEnabled(true);
                     }
 
-                    app.propertiesTag.setText(curNode + " - Properties");
+                    app.propertiesLabel.setText(curNode + " - Properties");
                     app.objProperties.revalidate();
                     app.objProperties.repaint();
 
@@ -145,7 +118,7 @@ public class App
                     cancelBtn.setEnabled(true);
                 }
                 else
-                    app.propertiesTag.setText("Properties");
+                    app.propertiesLabel.setText("Properties");
             }
         });
 
@@ -153,8 +126,8 @@ public class App
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                DefaultMutableTreeNode curNode = 
-                    (DefaultMutableTreeNode) guiTree.getLastSelectedPathComponent();
+                DefaultMutableTreeNode curNode = (DefaultMutableTreeNode)
+                    guiTree.getLastSelectedPathComponent();
 
                 WorldEntry curEntry = (WorldEntry) curNode.getUserObject();
 
@@ -172,7 +145,6 @@ public class App
             }
         });
 
-        
         addBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e)
@@ -237,15 +209,18 @@ public class App
                 });
 
 
-                JDialog addDialog = new JDialog(addFrame, "Add Hitable Object", true);
+                JDialog addDialog = new JDialog(addFrame, "Add Hitable Object",
+                        true);
                 addDialog.setSize(250, 250);
                 addDialog.add(addPanel);
                 addDialog.setVisible(true);
             }       
         });
 
-        guiTree.setRootVisible(false);
+        propertiesPane.setViewportView(app.objProperties);
+        propertiesPane.revalidate();
 
+        cancelBtn.setEnabled(false);
         cancelBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e)
@@ -257,12 +232,13 @@ public class App
             }
         });
 
+        confirmBtn.setEnabled(false);
         confirmBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                DefaultMutableTreeNode curNode = 
-                    (DefaultMutableTreeNode) guiTree.getLastSelectedPathComponent();
+                DefaultMutableTreeNode curNode = (DefaultMutableTreeNode)
+                    guiTree.getLastSelectedPathComponent();
 
                 if(curNode != null)
                 {
@@ -282,40 +258,61 @@ public class App
                     {}
                 }
                 else
-                    app.propertiesTag.setText("Properties");
+                    app.propertiesLabel.setText("Properties");
 
             }
         });
 
-        infoPanel.add(worldPane, infoC);
-
+        // Creating constraints used to arrange components
+        GridBagConstraints mainConstraints = new GridBagConstraints();
+        GridBagConstraints infoConstraints = new GridBagConstraints();
+        GridBagConstraints infoLabelConstraints = new GridBagConstraints();
         GridBagConstraints infoBtnConstraints = new GridBagConstraints();
+         
+        // Setting up constraints
+        mainConstraints.gridwidth = GridBagConstraints.RELATIVE;
+        mainConstraints.weightx = 0.85;
+        mainConstraints.weighty = 1;
+        mainConstraints.fill = GridBagConstraints.BOTH;
+
+        infoConstraints.gridwidth = GridBagConstraints.REMAINDER;
+        infoConstraints.fill = GridBagConstraints.BOTH;
+        infoConstraints.weightx = 1;
+        infoConstraints.weighty = 1;
+
+        infoLabelConstraints.gridwidth = GridBagConstraints.REMAINDER;
+
         infoBtnConstraints.gridwidth = GridBagConstraints.RELATIVE;
         infoBtnConstraints.fill = GridBagConstraints.HORIZONTAL;
         infoBtnConstraints.weightx = 1;
         infoBtnConstraints.weighty = 0;
+        
+        // Arranging components within their corrresponding container
+        // components
+        mainPanel.add(app.imagePanel, mainConstraints);
 
+        mainConstraints.gridwidth = GridBagConstraints.REMAINDER;
+        mainConstraints.weightx = 0.15;
+        mainPanel.add(infoPanel, mainConstraints); 
+
+        infoPanel.add(new JLabel("Scene Editor"), infoLabelConstraints);
+        infoPanel.add(worldPane, infoConstraints);
         infoPanel.add(subtractBtn, infoBtnConstraints);
         infoBtnConstraints.gridwidth = GridBagConstraints.REMAINDER;
         infoPanel.add(addBtn, infoBtnConstraints);
 
-        infoPanel.add(app.propertiesTag, infoLabelConstraints);
-        
-        app.properties.setViewportView(app.objProperties);
-        app.properties.revalidate();
-        infoPanel.add(app.properties, infoC);
-
+        infoPanel.add(app.propertiesLabel, infoLabelConstraints);
+        infoPanel.add(propertiesPane, infoConstraints);
         infoBtnConstraints.gridwidth = GridBagConstraints.RELATIVE;
         infoPanel.add(cancelBtn, infoBtnConstraints);
         infoBtnConstraints.gridwidth = GridBagConstraints.REMAINDER;
         infoPanel.add(confirmBtn, infoBtnConstraints);
 
+        mainWindow.add(mainPanel);
+        
         // Main menu configuration
         app.initMenuBar(mainWindow); 
 
-        mainWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        mainWindow.add(mainPanel);
         mainWindow.setVisible(true);
     }
 
